@@ -1,8 +1,9 @@
-%% Leah Rolf Project 1 MA540
+%% Project 1 MA540
 clear; close all
 set(0,'defaultLineLineWidth',4,'defaultAxesFontSize',20);
 
 %% Problem 1
+close all
 k1=20.5; c1=1.5;
 param1=[k1 c1];
 h1=1e-16; % complex step
@@ -11,16 +12,17 @@ time=0:.01:6;
 % Complex approx
 kcomplex=complex(k1,h1);
 paramsk=[kcomplex c1];
-[t,ykcomplex]=ode45(@(t,y) spring(t,y,paramsk), time, [2 ;-c1]); % want y(:,2)
+[t,ykcomplex]=ode45(@(t,y) spring(t,y,paramsk), time, [2 ;-c1]); 
 spring_k = imag(ykcomplex(:,1))/h1;
 
 ccomplex=complex(c1,h1);
 paramsc=[k1 ccomplex];
-[t,yccomplex]=ode45(@(t,y) spring(t,y,paramsc), time, [2 ;-c1]); % want y(:,2)
+[t,yccomplex]=ode45(@(t,y) spring(t,y,paramsc), time, [2 ;-1]); 
 spring_c = imag(yccomplex(:,1))/h1;
 
 % Finite Differences 
-[t,yog]=ode45(@(t,y) spring(t,y,param1), time, [2 ;-c1]); % original model
+[t,yog]=ode45(@(t,y) spring(t,y,param1), time, [2 ;-c1]); % original model for k
+[t,yog2]=ode45(@(t,y) spring(t,y,param1), time, [2 ;-1]); 
 h2=1e-6;
 
 % Finite k
@@ -30,8 +32,8 @@ finitek=(yk(:,1)-yog(:,1))/h2;
 
 % Finite c
 parsfinc=[k1 c1+h2];
-[t,yc]=ode45(@(t,y) spring(t,y,parsfinc), time, [2 ;-c1]);
-finitec=(yc(:,1)-yog(:,1))/h2;
+[t,yc]=ode45(@(t,y) spring(t,y,parsfinc), time, [2 ;-1]);
+finitec=(yc(:,1)-yog2(:,1))/h2;
 
 % Analytical solutions (given)
 f0 = sqrt(4*k1 - c1^2);
@@ -44,27 +46,32 @@ kana=f2.*f3;
 cana=f2.*f4;
 ana=2*exp(-c1.*time./2).*cos(sqrt(k1-(c1^2)/4).*time);
 
-figure(4) %everything is the same
+figure(1) 
+%k: currently complex and finite are the same
+subplot(1,2,1)
 hold on
 plot(time,spring_k)
 plot(time, finitek)
 plot(time, kana)
 hold off
-legend('Complex Approximation','Finite Differences','Analytical Solution','Location','Southeast')
+legend('Complex','FD','Analytical','Location','Southeast')
 title('Sensitivites of k vs. Time', 'FontSize',16)
 xlabel('$Time$','Interpreter','Latex', 'FontSize',12)
 ylabel('Sensitivity, $\frac{\delta k}{\delta t}$', 'Interpreter','Latex', 'FontSize',12)
+axis([0 6 -0.5 0.5])
 
-figure(5) %currently complex and finite are the same
+%c: currently complex and finite are the same
+subplot(1,2,2)
 hold on
 plot(time,spring_c)
 plot(time, finitec)
 plot(time,cana)
 hold off
-legend('Complex Approximation','Finite Differences','Analytical Solution','Location','Southeast')
+legend('Complex','FD','Analytical','Location','Southeast')
 title('Sensitivites of c vs. Time', 'FontSize',16)
 xlabel('$Time$','Interpreter','Latex', 'FontSize',12)
 ylabel('Sensitivity, $\frac{\delta c}{\delta t}$', 'Interpreter','Latex', 'FontSize',12)
+axis([0 6 -0.5 0.5])
 
 % figure(3) % Looking at ODE45 solution vs analytical solution
 % hold on
@@ -137,7 +144,7 @@ for i=1:2
                     plot(rodPoints,jacComplex(:,iParam)-jacFinite(:,iParam),LineSpec(iParam,'line'))
                 end
                 title({'Complex - Finite Difference' ''},'Interpreter','Latex')
-                legend('$\phi=-18.4$','$h=.00191$','k=2.37','Interpreter','Latex')
+                legend('\phi=-18.4','h=.00191','k=2.37','Interpreter','Latex')
             end
             xlabel('$x (cm)$','Interpreter','Latex')
         end
