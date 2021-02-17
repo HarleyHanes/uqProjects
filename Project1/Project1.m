@@ -46,32 +46,33 @@ kana=f2.*f3;
 cana=f2.*f4;
 ana=2*exp(-c1.*time./2).*cos(sqrt(k1-(c1^2)/4).*time);
 
-figure(1) 
+
+figure('Renderer', 'painters', 'Position', [50 50 1000 500])
 %k: currently all are the same
 subplot(1,2,1)
 hold on
-plot(time,spring_k)
-plot(time, finitek)
-plot(time, kana)
+plot(time,spring_k,LineSpec(1,'line'))
+plot(time, finitek,LineSpec(2,'line'))
+plot(time, kana,LineSpec(3,'line'))
 hold off
 legend('Complex','FD','Analytical','Location','Southeast')
-title('Sensitivites of k vs. Time', 'FontSize',16)
-xlabel('$Time$','Interpreter','Latex', 'FontSize',12)
-ylabel('Sensitivity, $\frac{\delta k}{\delta t}$', 'Interpreter','Latex', 'FontSize',12)
+title('Sensitivites of $k$ vs. Time','Interpreter','Latex')
+xlabel('$Time$','Interpreter','Latex')
+ylabel('Sensitivity, $\frac{\delta k}{\delta t}$', 'Interpreter','Latex')
 axis([0 6 -0.5 0.5])
 
 %c: currently all are same
 % figure(2)
 subplot(1,2,2)
 hold on
-plot(time,spring_c)
-plot(time, finitec)
-plot(time,cana)
+plot(time,spring_c,LineSpec(1,'line'))
+plot(time, finitec,LineSpec(2,'line'))
+plot(time,cana,LineSpec(3,'line'))
 hold off
 legend('Complex','FD','Analytical','Location','Southeast')
-title('Sensitivites of c vs. Time', 'FontSize',16)
-xlabel('$Time$','Interpreter','Latex', 'FontSize',12)
-ylabel('Sensitivity, $\frac{\delta c}{\delta t}$', 'Interpreter','Latex', 'FontSize',12)
+title('Sensitivites of $c$ vs. Time','Interpreter','Latex')
+xlabel('$Time$','Interpreter','Latex')
+ylabel('Sensitivity, $\frac{\delta c}{\delta t}$', 'Interpreter','Latex')
 axis([0 6 -0.5 0.5])
 
 % figure(3) % Looking at ODE45 solution vs analytical solution
@@ -145,7 +146,7 @@ for i=1:2
                     plot(rodPoints,jacComplex(:,iParam)-jacFinite(:,iParam),LineSpec(iParam,'line'))
                 end
                 title({'Complex - Finite Difference' ''},'Interpreter','Latex')
-                legend('\phi=-18.4','h=.00191','k=2.37','Interpreter','Latex')
+                legend('$\phi=-18.4$','$h=.00191$','$k=2.37$','Interpreter','Latex')
             end
             xlabel('$x (cm)$','Interpreter','Latex')
         end
@@ -170,11 +171,11 @@ end
 alpha1=-389.4; alpha11=761.3; alpha111=61.5;
 psi=@(P) alpha1*P.^2+alpha11*P.^4+alpha111*P.^6;
 interval=-.8:.01:.8;
-figure(20)
-plot(interval, psi(interval), 'LineWidth', 3)
-title('Helmholtz Energy vs. Polarization', 'FontSize',16)
-xlabel('Polarization, P', 'Interpreter','Latex', 'FontSize',12)
-ylabel('Helmholtz Energy, $\psi$', 'Interpreter','Latex', 'FontSize',12)
+figure('Renderer', 'painters', 'Position', [50 50 750 550])
+plot(interval, psi(interval),LineSpec(1,'line'))
+title('Helmholtz Energy vs. Polarization')
+xlabel('Polarization, P', 'Interpreter','Latex')
+ylabel('Helmholtz Energy, $\psi$', 'Interpreter','Latex')
 
 % Part B
 interval2=linspace(0,0.8,17);
