@@ -12,27 +12,27 @@ time=0:.01:6;
 % Complex approx
 kcomplex=complex(k1,h1);
 paramsk=[kcomplex c1];
-[t,ykcomplex]=ode45(@(t,y) spring(t,y,paramsk), time, [2 ;-c1]); 
+[t,ykcomplex]=ode15s(@(t,y) spring(t,y,paramsk), time, [2 ;-c1]); 
 spring_k = imag(ykcomplex(:,1))/h1;
 
 ccomplex=complex(c1,h1);
 paramsc=[k1 ccomplex];
-[t,yccomplex]=ode45(@(t,y) spring(t,y,paramsc), time, [2 ;-1]); 
+[t,yccomplex]=ode15s(@(t,y) spring(t,y,paramsc), time, [2 ;-ccomplex]); 
 spring_c = imag(yccomplex(:,1))/h1;
 
 % Finite Differences 
-[t,yog]=ode45(@(t,y) spring(t,y,param1), time, [2 ;-c1]); % original model for k
-[t,yog2]=ode45(@(t,y) spring(t,y,param1), time, [2 ;-1]); 
+[t,yog]=ode15s(@(t,y) spring(t,y,param1), time, [2 ;-c1]); % original model for k
+[t,yog2]=ode15s(@(t,y) spring(t,y,param1), time, [2 ;-1]); 
 h2=1e-6;
 
 % Finite k
 parsfink=[k1+h2 c1];
-[t,yk]=ode45(@(t,y) spring(t,y,parsfink), time, [2 ;-c1]);
+[t,yk]=ode15s(@(t,y) spring(t,y,parsfink), time, [2 ;-c1]);
 finitek=(yk(:,1)-yog(:,1))/h2;
 
 % Finite c
 parsfinc=[k1 c1+h2];
-[t,yc]=ode45(@(t,y) spring(t,y,parsfinc), time, [2 ;-1]);
+[t,yc]=ode15s(@(t,y) spring(t,y,parsfinc), time, [2 ;-1-h2]);
 finitec=(yc(:,1)-yog2(:,1))/h2;
 
 % Analytical solutions (given)
@@ -47,7 +47,7 @@ cana=f2.*f4;
 ana=2*exp(-c1.*time./2).*cos(sqrt(k1-(c1^2)/4).*time);
 
 figure(1) 
-%k: currently complex and finite are the same
+%k: currently all are the same
 subplot(1,2,1)
 hold on
 plot(time,spring_k)
@@ -60,7 +60,8 @@ xlabel('$Time$','Interpreter','Latex', 'FontSize',12)
 ylabel('Sensitivity, $\frac{\delta k}{\delta t}$', 'Interpreter','Latex', 'FontSize',12)
 axis([0 6 -0.5 0.5])
 
-%c: currently complex and finite are the same
+%c: currently all are same
+% figure(2)
 subplot(1,2,2)
 hold on
 plot(time,spring_c)
@@ -202,7 +203,7 @@ gamma = params(1);
 k = params(2);
 delta = params(3);
 r = params(4);
-dy = [delta*N - delta*y(1) - gamma*k*y(2)*y(1);
-gamma*k*y(2)*y(1) - (r + delta)*y(2);
-r*y(2) - delta*y(3)];
+dy = [delta*N - delta*y(1) - gamma*k*y(2)*y(1); %S
+gamma*k*y(2)*y(1) - (r + delta)*y(2); %I
+r*y(2) - delta*y(3)];%R
 end
