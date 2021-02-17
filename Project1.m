@@ -1,6 +1,6 @@
 %% Leah Rolf Project 1 MA540
-clear all
-close all
+clear; close all
+set(0,'defaultLineLineWidth',4,'defaultAxesFontSize',20);
 
 %% Problem 1
 k1=20.5; c1=1.5;
@@ -50,6 +50,7 @@ plot(time,spring_k)
 plot(time, kana)
 plot(time, finitek)
 hold off
+legend
 
 figure(5) %currently complex and finite are the same
 hold on
@@ -57,6 +58,7 @@ plot(time,spring_c)
 plot(time,cana)
 plot(time, finitec)
 hold off
+legend
 
 % figure(3) % Looking at ODE45 solution vs analytical solution
 % hold on
@@ -102,6 +104,52 @@ eig1=eig(fisher1);
 chi2=[pk pdelta pr];
 fisher2=chi2'*chi2;
 eig2=eig(fisher2);
+
+%% Problem 3
+%Set rod settings
+rodPoints=10:4:70;
+rodParams=[-18.4, .00191, 2.37];
+%Set figure settings
+figure('Renderer', 'painters', 'Position', [50 50 1000 500])
+hold on
+for i=1:2
+    if i==1
+        %Get sensitivity matrices
+        jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'real');
+        jacComplex=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'complex');
+        for j=1:2
+            subplot(1,2,j)
+            hold on
+            ylabel('$\frac{\partial T_C}{\partial \theta_i}-\frac{\partial T_F}{\partial \theta_i}$','Interpreter','Latex')
+            if j==1
+                for iParam=1:size(jacFinite,2)
+                    plot(rodPoints,jacComplex(:,iParam),LineSpec(iParam,'line'))
+                end
+                title({'Complex Sensitivities' ''},'Interpreter','Latex')
+            elseif j==2
+                for iParam=1:size(jacFinite,2)
+                    plot(rodPoints,jacComplex(:,iParam)-jacFinite(:,iParam),LineSpec(iParam,'line'))
+                end
+                title({'Complex - Finite Difference' ''},'Interpreter','Latex')
+                legend('$\phi=-18.4$','$h=.00191$','k=2.37','Interpreter','Latex')
+            end
+            xlabel('$x (cm)$','Interpreter','Latex')
+        end
+    elseif i==2
+        %Get sensitivity matrices
+        jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams,'real');
+        jacComplex=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams,'complex');
+    end
+    
+    %Plot Complex Sensitivity Results
+    %Get fisher matrices
+    scaledFisherFinite=jacFinite'*jacFinite;
+    scaledFisherComplex=jacComplex'*jacComplex;
+
+    %Compute ranks
+    rankFiniteFisher=rank(scaledFisherFinite);
+    rankComplexFisher=rank(scaledFisherComplex);
+end
 
 %% Problem 4
 Part A
