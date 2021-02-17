@@ -6,57 +6,63 @@ close all
 k1=20.5; c1=1.5;
 param1=[k1 c1];
 h1=1e-16; % complex step
-time=1:.1:6;
+time=0:.01:6;
 
 % Complex approx
 kcomplex=complex(k1,h1);
 paramsk=[kcomplex c1];
-[t,y]=ode45(@(t,y) spring(t,y,paramsk), time, [2 ;-c1]); % want y(:,2)
-spring_k = imag(y(:,1))/h1;
+[t,ykcomplex]=ode45(@(t,y) spring(t,y,paramsk), time, [2 ;-c1]); % want y(:,2)
+spring_k = imag(ykcomplex(:,1))/h1;
 
 ccomplex=complex(c1,h1);
 paramsc=[k1 ccomplex];
-[t,y]=ode45(@(t,y) spring(t,y,paramsc), time, [2 ;-c1]); % want y(:,2)
-spring_c = imag(y(:,1))/h1;
+[t,yccomplex]=ode45(@(t,y) spring(t,y,paramsc), time, [2 ;-c1]); % want y(:,2)
+spring_c = imag(yccomplex(:,1))/h1;
 
 % Finite Differences 
-[t,y]=ode45(@(t,y) spring(t,y,param1), time, [2 ;-c1]); % original model
+[t,yog]=ode45(@(t,y) spring(t,y,param1), time, [2 ;-c1]); % original model
 h2=1e-6;
 
 % Finite k
 parsfink=[k1+h2 c1];
 [t,yk]=ode45(@(t,y) spring(t,y,parsfink), time, [2 ;-c1]);
-finitek=(yk(:,1)-y(:,1))/h2;
+finitek=(yk(:,1)-yog(:,1))/h2;
 
-% Finite h
+% Finite c
 parsfinc=[k1 c1+h2];
-[t,yh]=ode45(@(t,y) spring(t,y,parsfinc), time, [2 ;-c1]);
-finitec=(yh(:,1)-y(:,1))/h2;
+[t,yc]=ode45(@(t,y) spring(t,y,parsfinc), time, [2 ;-c1]);
+finitec=(yc(:,1)-yog(:,1))/h2;
 
 % Analytical solutions (given)
-kana=exp(-c1.*time./2).*((-2.*time)/sqrt(4*k1-(c1)^2)).*sin(time.*sqrt(k1-(c1^2)/4));
-cana=exp(-c1.*time./2).*(c1.*time)/sqrt(4*k1-(c1)^2).*sin(time.*sqrt(k1-(c1^2)/4))-time.*cos(sqrt(k1-(c1^2)/4).*time);
+f0 = sqrt(4*k1 - c1^2);
+f1 = sqrt(k1 - c1^2/4)*time;
+f2 = exp(-c1*time/2);
+f3 = (-2*time/f0).*sin(f1);
+f4 = (c1*time/f0).*sin(f1) - time.*cos(f1);
+
+kana=f2.*f3;
+cana=f2.*f4;
 ana=2*exp(-c1.*time./2).*cos(sqrt(k1-(c1^2)/4).*time);
 
-% figure(1) %currently complex and finite are the same
-% hold on
-% plot(time,spring_k)
-% plot(time, kana)
-% plot(time, finitek)
-% hold off
-% 
-% figure(2) %currently complex and finite are the same
-% hold on
-% plot(time,spring_c)
-% plot(time,cana)
-% plot(time, finitec)
-% hold off
-
-figure(3) % Looking at ODE45 solution vs analytical solution
+figure(4) %currently complex and finite are the same
 hold on
-plot(time, ana)
-plot(time,y(:,1))
+plot(time,spring_k)
+plot(time, kana)
+plot(time, finitek)
 hold off
+
+figure(5) %currently complex and finite are the same
+hold on
+plot(time,spring_c)
+plot(time,cana)
+plot(time, finitec)
+hold off
+
+% figure(3) % Looking at ODE45 solution vs analytical solution
+% hold on
+% plot(time, ana)
+% plot(time,yog(:,1))
+% hold off
 
 %% Problem 2
 
@@ -121,8 +127,9 @@ eigenvalues4=eig(fisher4);
 %% Function for Prob 1
 
 function dy=spring(t,y,param1)
+k=param1(1); c=param1(2);
 dy(1)=y(2);
-dy(2)=(-param1(2)*y(2))-(param1(1)*y(1));
+dy(2)=(-c*dy(1))-(k*y(1));
 dy=[dy(1); dy(2)];
 end
 
