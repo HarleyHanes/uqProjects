@@ -5,50 +5,57 @@ close all
 %% Problem 1
 k1=20.5; c1=1.5;
 param1=[k1 c1];
-h1=1e-16;
+h1=1e-16; % complex step
 time=1:.1:6;
 
-% Making each variable complex
+% Complex approx
 kcomplex=complex(k1,h1);
 paramsk=[kcomplex c1];
 [t,y]=ode45(@(t,y) spring(t,y,paramsk), time, [2 ;-c1]); % want y(:,2)
-spring_k = imag(y(:,2))/h1;
+spring_k = imag(y(:,1))/h1;
 
 ccomplex=complex(c1,h1);
 paramsc=[k1 ccomplex];
 [t,y]=ode45(@(t,y) spring(t,y,paramsc), time, [2 ;-c1]); % want y(:,2)
-spring_c = imag(y(:,2))/h1;
+spring_c = imag(y(:,1))/h1;
+
+% Finite Differences 
+[t,y]=ode45(@(t,y) spring(t,y,param1), time, [2 ;-c1]); % original model
+h2=1e-6;
+
+% Finite k
+parsfink=[k1+h2 c1];
+[t,yk]=ode45(@(t,y) spring(t,y,parsfink), time, [2 ;-c1]);
+finitek=(yk(:,1)-y(:,1))/h2;
+
+% Finite h
+parsfinc=[k1 c1+h2];
+[t,yh]=ode45(@(t,y) spring(t,y,parsfinc), time, [2 ;-c1]);
+finitec=(yh(:,1)-y(:,1))/h2;
 
 % Analytical solutions (given)
 kana=exp(-c1.*time./2).*((-2.*time)/sqrt(4*k1-(c1)^2)).*sin(time.*sqrt(k1-(c1^2)/4));
 cana=exp(-c1.*time./2).*(c1.*time)/sqrt(4*k1-(c1)^2).*sin(time.*sqrt(k1-(c1^2)/4))-time.*cos(sqrt(k1-(c1^2)/4).*time);
+ana=2*exp(-c1.*time./2).*cos(sqrt(k1-(c1^2)/4).*time);
 
-% Finite Differences 
-[t,y]=ode45(@(t,y) spring(t,y,param1), time, [2 ;-c1]); % original model
-h=1e-6;
+% figure(1) %currently complex and finite are the same
+% hold on
+% plot(time,spring_k)
+% plot(time, kana)
+% plot(time, finitek)
+% hold off
+% 
+% figure(2) %currently complex and finite are the same
+% hold on
+% plot(time,spring_c)
+% plot(time,cana)
+% plot(time, finitec)
+% hold off
 
-% Finite k
-parsfink=[k1+h c1];
-[t,yk]=ode45(@(t,y) spring(t,y,parsfink), time, [2 ;-c1]);
-finitek=(yk(:,2)-y(:,2))/h;
-
-% Finite h
-parsfinc=[k1 c1+h];
-[t,yh]=ode45(@(t,y) spring(t,y,parsfinc), time, [2 ;-c1]);
-finitec=(yh(:,2)-y(:,2))/h;
-
-figure(1) %currently complex and finite are the same
+figure(3) % Looking at ODE45 solution vs analytical solution
 hold on
-plot(time,spring_k)
-plot(time, kana)
-plot(time, finitek)
-hold off
-
-figure(2) %currently complex and finite are the same
-hold on
-plot(time,spring_c)
-plot(time,cana)
-plot(time, finitec)
+plot(time, ana)
+plot(time,y(:,1))
 hold off
 
 %% Problem 2
@@ -115,7 +122,7 @@ eigenvalues4=eig(fisher4);
 
 function dy=spring(t,y,param1)
 dy(1)=y(2);
-dy(2)=-param1(2)*y(2)-param1(1)*y(1);
+dy(2)=(-param1(2)*y(2))-(param1(1)*y(1));
 dy=[dy(1); dy(2)];
 end
 
