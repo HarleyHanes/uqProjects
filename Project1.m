@@ -185,6 +185,35 @@ chi4=[deltalph1' deltalph2' deltalph3'];
 fisher4=chi4'*chi4;
 eigenvalues4=eig(fisher4);
 
+%Part C
+%Generate Samples
+alphaRanges=[-389.4, 761.3, 61.5].*([.8;1.2].*ones(2,3));
+sampNumber=10000;
+%alphaSample=alphaRanges.*(rand(50,3)*.4+.8);     %Sample Unif(.8alpha,1.2alpha)
+
+%Part D
+[sobolBaseFull, sobolTotFull,sampleFull]=SatelliSobol(...
+    @(params)HelmholtzInt(params,[0 0.8]),alphaRanges,sampNumber);
+    %param(3)=alpha111 found to be noninfluential and second order effects
+    %minimal
+[sobolBaseReduced, sobolTotReduced,sampleReduced]=SatelliSobol(...
+    @(params)HelmholtzInt([params 61.5*ones(size(params,1),1)],[0 0.8]),alphaRanges(:,1:2),sampNumber);
+[~,densityFull,xMeshFull,cdfFull]=kde(sampleFull,4000);
+[~,densityReduced,xMeshReduced,cdfReduced]=kde(sampleFull,4000);
+figure('Renderer', 'painters', 'Position', [50 50 750 550])
+hold on
+plot(xMeshFull,densityFull,LineSpec(1,'line'))
+plot(xMeshReduced,densityReduced,LineSpec(2,'line'))
+xlabel('','Interpreter','Latex')
+ylabel('pdf','Interpreter','Latex')
+title('Kernal Density Estimates of Heimholtz Energy','Interpreter','Latex')
+legend('Unfixed $\alpha_{111}$','Fixed $\alpha_{111}$','Interpreter','Latex')
+
+
+    
+
+
+
 
 %% Function for Prob 1
 
@@ -207,3 +236,34 @@ dy = [delta*N - delta*y(1) - gamma*k*y(2)*y(1); %S
 gamma*k*y(2)*y(1) - (r + delta)*y(2); %I
 r*y(2) - delta*y(3)];%R
 end
+
+%% Functions for Prob 3
+
+%% Functions for Prob 4
+function int=HelmholtzInt(params,yBounds)
+
+int=[params(:,1)/3 params(:,2)/5 params(:,3)/7]*...
+    [yBounds(2)^3-yBounds(1)^3; yBounds(2)^5-yBounds(1)^5; yBounds(2)^7-yBounds(1)^7];
+
+end
+
+function [sobolBase, sobolTot,sampC]=SatelliSobol(evalFcn,paramRange,sampleSize)
+nPOIs=size(paramRange,2);
+sampA=rand(sampleSize,size(paramRange,2)).*(paramRange(2,:)-paramRange(1,:))+paramRange(1,:);
+sampB=rand(sampleSize,size(paramRange,2)).*(paramRange(2,:)-paramRange(1,:))+paramRange(1,:);
+sampC=[sampA; sampB];
+fA=evalFcn(sampA); fB=evalFcn(sampB); fC=evalFcn(sampC);
+fAb=NaN(sampleSize,nPOIs);fBa=fAb;
+for iParams=1:nPOIs
+    sampAb=sampA; sampAb(:,iParams)=sampB(:,iParams);
+    sampBa=sampB; sampBa(:,iParams)=sampA(:,iParams);
+    fAb(:,iParams)=evalFcn(sampAb);
+    fBa(:,iParams)=evalFcn(sampBa);
+end
+    fCexpected=mean(evalFcn(sampC));          %UNSURE IF THIS IS CORRECT
+    sobolDen=1/(2*sampleSize)*sum(fC.^2,1)-fCexpected.^2;
+    sobolBase=(1/sampleSize*sum(fA.*fBa-fA.*fB,1))/sobolDen;
+    sobolTot=(1/(2*sampleSize)*sum(fA-fAb,1))/sobolDen;
+end
+
+
