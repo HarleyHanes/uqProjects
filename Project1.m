@@ -152,7 +152,7 @@ for i=1:2
 end
 
 %% Problem 4
-Part A
+% Part A
 alpha1=-389.4; alpha11=761.3; alpha111=61.5;
 psi=@(P) alpha1*P.^2+alpha11*P.^4+alpha111*P.^6;
 interval=-.8:.01:.8;
