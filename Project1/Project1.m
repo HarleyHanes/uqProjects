@@ -47,7 +47,7 @@ cana=f2.*f4;
 ana=2*exp(-c1.*time./2).*cos(sqrt(k1-(c1^2)/4).*time);
 
 
-figure('Renderer', 'painters', 'Position', [50 50 1000 500])
+figure('Renderer', 'painters', 'Position', [100 100 1050 550])
 %k: currently all are the same
 subplot(1,2,1)
 hold on
@@ -74,6 +74,9 @@ title('Sensitivites of $c$ vs. Time','Interpreter','Latex')
 xlabel('$Time$','Interpreter','Latex')
 ylabel('Sensitivity, $\frac{\delta c}{\delta t}$', 'Interpreter','Latex')
 axis([0 6 -0.5 0.5])
+
+%Save Figure
+saveas(gcf,'Project1/Figures/SpringSensitivities.png')
 
 % figure(3) % Looking at ODE45 solution vs analytical solution
 % hold on
@@ -125,7 +128,7 @@ eig2=eig(fisher2);
 rodPoints=10:4:70;
 rodParams=[-18.4, .00191, 2.37];
 %Set figure settings
-figure('Renderer', 'painters', 'Position', [50 50 1000 500])
+figure('Renderer', 'painters', 'Position', [100 100 1050 550])
 hold on
 for i=1:2
     if i==1
@@ -166,16 +169,18 @@ for i=1:2
     rankComplexFisher=rank(scaledFisherComplex);
 end
 
+saveas(gcf,'Project1/Figures/RodSensitivities.png')
 %% Problem 4
 % Part A
 alpha1=-389.4; alpha11=761.3; alpha111=61.5;
 psi=@(P) alpha1*P.^2+alpha11*P.^4+alpha111*P.^6;
 interval=-.8:.01:.8;
-figure('Renderer', 'painters', 'Position', [50 50 750 550])
+figure('Renderer', 'painters', 'Position', [100 100 800 600])
 plot(interval, psi(interval),LineSpec(1,'line'))
 title('Helmholtz Energy vs. Polarization')
 xlabel('Polarization, P', 'Interpreter','Latex')
 ylabel('Helmholtz Energy, $\psi$', 'Interpreter','Latex')
+saveas(gcf,'Project1/Figures/HelmholtzEnergy.png')
 
 % Part B
 interval2=linspace(0,0.8,17);
@@ -201,7 +206,7 @@ sampNumber=10000;
     @(params)HelmholtzInt([params 61.5*ones(size(params,1),1)],[0 0.8]),alphaRanges(:,1:2),sampNumber);
 [~,densityFull,xMeshFull,cdfFull]=kde(sampleFull,4000);
 [~,densityReduced,xMeshReduced,cdfReduced]=kde(sampleFull,4000);
-figure('Renderer', 'painters', 'Position', [50 50 750 550])
+figure('Renderer', 'painters', 'Position', [100 100 800 600])
 hold on
 plot(xMeshFull,densityFull,LineSpec(1,'line'))
 plot(xMeshReduced,densityReduced,LineSpec(2,'line'))
@@ -209,6 +214,7 @@ xlabel('','Interpreter','Latex')
 ylabel('pdf','Interpreter','Latex')
 title('Kernal Density Estimates of Heimholtz Energy','Interpreter','Latex')
 legend('Unfixed $\alpha_{111}$','Fixed $\alpha_{111}$','Interpreter','Latex')
+saveas(gcf,'Project1/Figures/HelmholtzKDE.png')
 
 
     
