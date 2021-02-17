@@ -44,21 +44,27 @@ kana=f2.*f3;
 cana=f2.*f4;
 ana=2*exp(-c1.*time./2).*cos(sqrt(k1-(c1^2)/4).*time);
 
-figure(4) %currently complex and finite are the same
+figure(4) %everything is the same
 hold on
 plot(time,spring_k)
-plot(time, kana)
 plot(time, finitek)
+plot(time, kana)
 hold off
-legend
+legend('Complex Approximation','Finite Differences','Analytical Solution','Location','Southeast')
+title('Sensitivites of k vs. Time', 'FontSize',16)
+xlabel('$Time$','Interpreter','Latex', 'FontSize',12)
+ylabel('Sensitivity, $\frac{\delta k}{\delta t}$', 'Interpreter','Latex', 'FontSize',12)
 
 figure(5) %currently complex and finite are the same
 hold on
 plot(time,spring_c)
-plot(time,cana)
 plot(time, finitec)
+plot(time,cana)
 hold off
-legend
+legend('Complex Approximation','Finite Differences','Analytical Solution','Location','Southeast')
+title('Sensitivites of c vs. Time', 'FontSize',16)
+xlabel('$Time$','Interpreter','Latex', 'FontSize',12)
+ylabel('Sensitivity, $\frac{\delta c}{\delta t}$', 'Interpreter','Latex', 'FontSize',12)
 
 % figure(3) % Looking at ODE45 solution vs analytical solution
 % hold on
@@ -77,7 +83,7 @@ params = [0.2; 0.1; 0.15; 0.6];
 ode_options = odeset('RelTol',1e-6);
 [t,Y] = ode45(@SIR_rhs,t_data,Y0,ode_options,params);
 
-% Finite differences
+% Finite differences to get Fisher matrix
 deltah2=1e-6;
 
 deltagamma=[0.2+deltah2;0.1;0.15;0.6];
