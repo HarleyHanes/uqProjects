@@ -245,7 +245,7 @@ plot(xMeshFull,densityFull,LineSpec(1,'line'))
 plot(xMeshReduced,densityReduced,LineSpec(2,'line'))
 xlabel('','Interpreter','Latex')
 ylabel('pdf','Interpreter','Latex')
-title('Kernal Density Estimates of Heimholtz Energy','Interpreter','Latex')
+title('Kernel Density Estimates of Helmholtz Energy','Interpreter','Latex')
 legend('Unfixed $\alpha_{111}$','Fixed $\alpha_{111}$','Interpreter','Latex')
 saveas(gcf,'Project1/Figures/HelmholtzKDE.png')
 
