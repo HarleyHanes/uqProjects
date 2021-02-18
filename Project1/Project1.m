@@ -131,6 +131,7 @@ rodParams=[-18.4, .00191, 2.37];
 figure('Renderer', 'painters', 'Position', [100 100 1050 550])
 hold on
 for i=1:2
+    figure('Renderer', 'painters', 'Position', [100 100 1050 550])
     if i==1
         %Get sensitivity matrices
         jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'real');
@@ -155,8 +156,26 @@ for i=1:2
         end
     elseif i==2
         %Get sensitivity matrices
-        jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams,'real');
-        jacComplex=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams,'complex');
+        jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams(1:2),'real');
+        jacComplex=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams(1:2),'complex');
+        for j=1:2
+            subplot(1,2,j)
+            hold on
+            ylabel('$\frac{\partial T_C}{\partial \theta_i}-\frac{\partial T_F}{\partial \theta_i}$','Interpreter','Latex')
+            if j==1
+                for iParam=1:size(jacFinite,2)
+                    plot(rodPoints,jacComplex(:,iParam),LineSpec(iParam,'line'))
+                end
+                title({'Complex Sensitivities' ''},'Interpreter','Latex')
+            elseif j==2
+                for iParam=1:size(jacFinite,2)
+                    plot(rodPoints,jacComplex(:,iParam)-jacFinite(:,iParam),LineSpec(iParam,'line'))
+                end
+                title({'Complex - Finite Difference' ''},'Interpreter','Latex')
+                legend('$\phi=-18.4$','$h=.00191$','$k=2.37$','Interpreter','Latex')
+            end
+            xlabel('$x (cm)$','Interpreter','Latex')
+        end
     end
     
     %Plot Complex Sensitivity Results
@@ -193,17 +212,31 @@ eigenvalues4=eig(fisher4);
 
 %Part C
 %Generate Samples
-alphaRanges=[-389.4, 761.3, 61.5].*([.8;1.2].*ones(2,3));
-sampNumber=10000;
-%alphaSample=alphaRanges.*(rand(50,3)*.4+.8);     %Sample Unif(.8alpha,1.2alpha)
+sampNumberMorris=50;
+alphaSample=[-389.4, 761.3, 61.5].*(rand(50,3)*.4+.8);     %Sample Unif(.8alpha,1.2alpha)
+dMat=NaN(sampNumberMorris,3);
+for i=1:sampNumberMorris
+    dMat(i,:)=getJacobian(@(params)HelmholtzInt(params,[0 .8]), ...
+        alphaSample(i,:),'finite','h',1/20);
+end
+muStarMorris=sum(abs(dMat),1)/sampNumberMorris;
+muMorris=sum(dMat,1)/sampNumberMorris;
+sigmaSMorris=1/(sampNumberMorris-1)*sum((dMat-muMorris).^2,1);
+alphaJac=getJacobian(@(params)HelmholtzInt(params,[0 .8]),[-389.4, 761.3, 61.5]);
+fprintf('\nProblem 4\n')
+fprintf(['muStar=[%.3f %.3f %.3f]\nsigmaSquared=[%.3f %.3f %.3f]\n'...
+    'alphaJac=[%.3f %.3f %.3f]\n'],muMorris,sigmaSMorris,alphaJac)
+
 
 %Part D
+sampNumberSobol=10000;
+alphaRanges=[-389.4, 761.3, 61.5].*([.8;1.2].*ones(2,3));
 [sobolBaseFull, sobolTotFull,sampleFull]=SatelliSobol(...
-    @(params)HelmholtzInt(params,[0 0.8]),alphaRanges,sampNumber);
+    @(params)HelmholtzInt(params,[0 0.8]),alphaRanges,sampNumberSobol);
     %param(3)=alpha111 found to be noninfluential and second order effects
     %minimal
 [sobolBaseReduced, sobolTotReduced,sampleReduced]=SatelliSobol(...
-    @(params)HelmholtzInt([params 61.5*ones(size(params,1),1)],[0 0.8]),alphaRanges(:,1:2),sampNumber);
+    @(params)HelmholtzInt([params 61.5*ones(size(params,1),1)],[0 0.8]),alphaRanges(:,1:2),sampNumberSobol);
 [~,densityFull,xMeshFull,cdfFull]=kde(sampleFull,4000);
 [~,densityReduced,xMeshReduced,cdfReduced]=kde(sampleFull,4000);
 figure('Renderer', 'painters', 'Position', [100 100 800 600])

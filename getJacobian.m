@@ -9,10 +9,17 @@ function jac = getJacobian(evalFcn,xBase,varargin)
 %   (pj / qi) (partial qi/ partial pj) = S
 
 %%
-if isempty(varargin)||sum(strcmpi(varargin,'complex'))
-    approxMethod='complex';
-else
+if sum(strcmpi(varargin,'finite'))
     approxMethod='finite';
+elseif sum(strcmpi(varargin,'forward'))
+    approxMethod='forward';
+else 
+    approxMethod='complex';
+end
+if isempty(varargin)||(sum(strcmpi(varargin,'h'))==0) 
+    delta_x0 = 1e-8;
+elseif sum(strcmpi(varargin,'h'))==1
+    delta_x0=varargin{find(strcmpi(varargin,'h'))+1};      %Assign whatever follows 'h' to delta_x0
 end
 nPOIs=length(xBase);
 % calculate baseline point
@@ -25,7 +32,6 @@ nQuants = length(baseQuants);
 jac = NaN(nQuants, nPOIs);
 
 %factor = .001; % get .1% of initial parameters, HARD
-delta_x0 = 1e-8;
 
 % fudge number if delta is 0
 %delta_x0(delta_x0==0) = factor;
@@ -42,6 +48,9 @@ for i = 1:nPOIs
     elseif strcmpi(approxMethod,'complex')
         xPert(i)=xBase(i)+delta_x0*1i;
         yPert=evalFcn(xPert);
+    elseif strcmpi(approxMethod,'forward')
+        xPert(i)=xBase(i)+delta_x0;
+        yPert=evalFcn(xPert);
     end
     for j = 1:nQuants
         % Calculate partial
@@ -49,6 +58,8 @@ for i = 1:nPOIs
             jac(j,i) = (yHi(j) - yLo(j)) / (2 * delta_x0);
         elseif strcmpi(approxMethod,'complex')
             jac(j,i)=imag(yPert(j))/delta_x0;
+        elseif strcmpi(approxMethod,'forward')
+            jac(j,i)=(yPert-baseQuants)/delta_x0;
         end
        
 %         if ~raw
