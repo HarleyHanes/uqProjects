@@ -131,28 +131,33 @@ rodParams=[-18.4, .00191, 2.37];
 hold on
 for i=1:2
     if i==1
-        figure('Renderer', 'painters', 'Position', [100 100 1050 550])
+        figure('Renderer', 'painters', 'Position', [50 100 1400 550])
         %Get sensitivity matrices
-        jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'real');
+        jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'finite');
         jacComplex=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'complex');
-        for j=1:2
+        jacAnalytic=RodSensitivities(rodParams,rodPoints');
+        for j=1:3
+            subplot(1,3,j)
             if j==1
-                subplot(1,2,1)
-                for iParam=1:size(jacFinite,2)
+                for iParam=1:size(jacComplex,2)
                     semilogy(rodPoints,abs(jacComplex(:,iParam)),LineSpec(iParam,'line'))
                     hold on
                 end
+                title({'Complex Step' 'Sensitivities'},'Interpreter','Latex')
                 ylabel('$\left|\frac{\partial T}{\partial \theta_i}\right|$','Interpreter','Latex')
-                title({'Complex Sensitivities' ''},'Interpreter','Latex')
+            elseif j==3
+                for iParam=1:size(jacFinite,2)
+                    semilogy(rodPoints,abs(jacFinite(:,iParam)-jacAnalytic(:,iParam)),LineSpec(iParam,'line'))
+                    hold on
+                end
+                title({'Finite Approximation' 'Accuracy'},'Interpreter','Latex')
+                legend('$\phi=-18.4$','$h=.00191$','$k=2.37$','Interpreter','Latex')
             elseif j==2
-                subplot(1,2,2)
-                jacAnalytic=RodSensitivities(rodParams,rodPoints');
                 for iParam=1:size(jacComplex,2)
                     semilogy(rodPoints,abs(jacComplex(:,iParam)-jacAnalytic(:,iParam)),LineSpec(iParam,'line'))
                     hold on
                 end
-                title({'Complex - Analytic Difference' ''},'Interpreter','Latex')
-                legend('$\phi=-18.4$','$h=.00191$','$k=2.37$','Interpreter','Latex')
+                title({'Complex Approximation' 'Accuracy'},'Interpreter','Latex')
             end
             xlabel('$x (cm)$','Interpreter','Latex')
         end
