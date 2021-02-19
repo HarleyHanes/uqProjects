@@ -76,7 +76,7 @@ ylabel('Sensitivity, $\frac{\delta c}{\delta t}$', 'Interpreter','Latex')
 axis([0 6 -0.5 0.5])
 
 %Save Figure
-saveas(gcf,'Project1/Figures/SpringSensitivities.png')
+saveas(gcf,'Figures/SpringSensitivities.png')
 
 % figure(3) % Looking at ODE45 solution vs analytical solution
 % hold on
@@ -128,54 +128,56 @@ eig2=eig(fisher2);
 rodPoints=10:4:70;
 rodParams=[-18.4, .00191, 2.37];
 %Set figure settings
-figure('Renderer', 'painters', 'Position', [100 100 1050 550])
 hold on
 for i=1:2
-    figure('Renderer', 'painters', 'Position', [100 100 1050 550])
     if i==1
+        figure('Renderer', 'painters', 'Position', [100 100 1050 550])
         %Get sensitivity matrices
         jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'real');
         jacComplex=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'complex');
         for j=1:2
-            subplot(1,2,j)
-            hold on
-            ylabel('$\frac{\partial T_C}{\partial \theta_i}-\frac{\partial T_F}{\partial \theta_i}$','Interpreter','Latex')
             if j==1
+                subplot(1,2,1)
                 for iParam=1:size(jacFinite,2)
-                    plot(rodPoints,jacComplex(:,iParam),LineSpec(iParam,'line'))
+                    semilogy(rodPoints,abs(jacComplex(:,iParam)),LineSpec(iParam,'line'))
+                    hold on
                 end
+                ylabel('$\left|\frac{\partial T}{\partial \theta_i}\right|$','Interpreter','Latex')
                 title({'Complex Sensitivities' ''},'Interpreter','Latex')
             elseif j==2
-                for iParam=1:size(jacFinite,2)
-                    plot(rodPoints,jacComplex(:,iParam)-jacFinite(:,iParam),LineSpec(iParam,'line'))
+                subplot(1,2,2)
+                jacAnalytic=RodSensitivities(rodParams,rodPoints');
+                for iParam=1:size(jacComplex,2)
+                    semilogy(rodPoints,abs(jacComplex(:,iParam)-jacAnalytic(:,iParam)),LineSpec(iParam,'line'))
+                    hold on
                 end
-                title({'Complex - Finite Difference' ''},'Interpreter','Latex')
+                title({'Complex - Analytic Difference' ''},'Interpreter','Latex')
                 legend('$\phi=-18.4$','$h=.00191$','$k=2.37$','Interpreter','Latex')
             end
             xlabel('$x (cm)$','Interpreter','Latex')
         end
     elseif i==2
-        %Get sensitivity matrices
-        jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams(1:2),'real');
-        jacComplex=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams(1:2),'complex');
-        for j=1:2
-            subplot(1,2,j)
-            hold on
-            ylabel('$\frac{\partial T_C}{\partial \theta_i}-\frac{\partial T_F}{\partial \theta_i}$','Interpreter','Latex')
-            if j==1
-                for iParam=1:size(jacFinite,2)
-                    plot(rodPoints,jacComplex(:,iParam),LineSpec(iParam,'line'))
-                end
-                title({'Complex Sensitivities' ''},'Interpreter','Latex')
-            elseif j==2
-                for iParam=1:size(jacFinite,2)
-                    plot(rodPoints,jacComplex(:,iParam)-jacFinite(:,iParam),LineSpec(iParam,'line'))
-                end
-                title({'Complex - Finite Difference' ''},'Interpreter','Latex')
-                legend('$\phi=-18.4$','$h=.00191$','$k=2.37$','Interpreter','Latex')
-            end
-            xlabel('$x (cm)$','Interpreter','Latex')
-        end
+%         %Get sensitivity matrices
+%         jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams(1:2),'real');
+%         jacComplex=getJacobian(@(params)UninsulatedRodEquil(rodPoints,[params 2.37]),rodParams(1:2),'complex');
+%         for j=1:2
+%             subplot(1,2,j)
+%             hold on
+%             ylabel('$\frac{\partial T_C}{\partial \theta_i}-\frac{\partial T_F}{\partial \theta_i}$','Interpreter','Latex')
+%             if j==1
+%                 for iParam=1:size(jacFinite,2)
+%                     plot(rodPoints,jacComplex(:,iParam),LineSpec(iParam,'line'))
+%                 end
+%                 title({'Complex Sensitivities' ''},'Interpreter','Latex')
+%             elseif j==2
+%                 for iParam=1:size(jacFinite,2)
+%                     plot(rodPoints,jacComplex(:,iParam)-jacFinite(:,iParam),LineSpec(iParam,'line'))
+%                 end
+%                 title({'Complex - Finite Difference' ''},'Interpreter','Latex')
+%                 legend('$\phi=-18.4$','$h=.00191$','$k=2.37$','Interpreter','Latex')
+%             end
+%             xlabel('$x (cm)$','Interpreter','Latex')
+%         end
     end
     
     %Plot Complex Sensitivity Results
@@ -188,7 +190,7 @@ for i=1:2
     rankComplexFisher=rank(scaledFisherComplex);
 end
 
-saveas(gcf,'Project1/Figures/RodSensitivities.png')
+saveas(gcf,'Figures/RodSensitivities.png')
 %% Problem 4
 % Part A
 alpha1=-389.4; alpha11=761.3; alpha111=61.5;
@@ -199,7 +201,7 @@ plot(interval, psi(interval),LineSpec(1,'line'))
 title('Helmholtz Energy vs. Polarization')
 xlabel('Polarization, P', 'Interpreter','Latex')
 ylabel('Helmholtz Energy, $\psi$', 'Interpreter','Latex')
-saveas(gcf,'Project1/Figures/HelmholtzEnergy.png')
+saveas(gcf,'Figures/HelmholtzEnergy.png')
 
 % Part B
 interval2=linspace(0,0.8,17);
@@ -229,7 +231,7 @@ fprintf(['muStar=[%.3f %.3f %.3f]\nsigmaSquared=[%.3f %.3f %.3f]\n'...
 
 
 %Part D
-sampNumberSobol=10000;
+sampNumberSobol=100000;
 alphaRanges=[-389.4, 761.3, 61.5].*([.8;1.2].*ones(2,3));
 [sobolBaseFull, sobolTotFull,sampleFull]=SatelliSobol(...
     @(params)HelmholtzInt(params,[0 0.8]),alphaRanges,sampNumberSobol);
@@ -237,6 +239,14 @@ alphaRanges=[-389.4, 761.3, 61.5].*([.8;1.2].*ones(2,3));
     %minimal
 [sobolBaseReduced, sobolTotReduced,sampleReduced]=SatelliSobol(...
     @(params)HelmholtzInt([params 61.5*ones(size(params,1),1)],[0 0.8]),alphaRanges(:,1:2),sampNumberSobol);
+
+fprintf(['\nUnreduced Sobol: [%.3g, %.3g, %.3g]\n'...
+         'Unreduced Total Sobol: [%.3g, %.3g, %.3g]\n'...
+         'Reduced Sobol: [%.3g, %.3g]\n'...
+         'Reduced Total Sobol: [%.3g, %.3g]\n'],...
+         sobolBaseFull, sobolTotFull, sobolBaseReduced, sobolTotReduced)
+
+
 [~,densityFull,xMeshFull,cdfFull]=kde(sampleFull,4000);
 [~,densityReduced,xMeshReduced,cdfReduced]=kde(sampleFull,4000);
 figure('Renderer', 'painters', 'Position', [100 100 800 600])
@@ -247,7 +257,7 @@ xlabel('','Interpreter','Latex')
 ylabel('pdf','Interpreter','Latex')
 title('Kernal Density Estimates of Heimholtz Energy','Interpreter','Latex')
 legend('Unfixed $\alpha_{111}$','Fixed $\alpha_{111}$','Interpreter','Latex')
-saveas(gcf,'Project1/Figures/HelmholtzKDE.png')
+saveas(gcf,'Figures/HelmholtzKDE.png')
 
 
     
