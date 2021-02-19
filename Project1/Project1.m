@@ -247,13 +247,13 @@ fprintf(['\nUnreduced Sobol: [%.3g, %.3g, %.3g]\n'...
          sobolBaseFull, sobolTotFull, sobolBaseReduced, sobolTotReduced)
 
 
-[~,densityFull,xMeshFull,cdfFull]=kde(sampleFull,4000);
-[~,densityReduced,xMeshReduced,cdfReduced]=kde(sampleFull,4000);
+[~,densityFull,xMeshFull,cdfFull]=kde(HelmholtzInt(sampleFull,[0 0.8]),2000);
+[~,densityReduced,xMeshReduced,cdfReduced]=kde(HelmholtzInt([sampleReduced 61.5*ones(size(sampleReduced,1),1)] ,[0 0.8]),2000);
 figure('Renderer', 'painters', 'Position', [100 100 800 600])
 hold on
 plot(xMeshFull,densityFull,LineSpec(1,'line'))
 plot(xMeshReduced,densityReduced,LineSpec(2,'line'))
-xlabel('','Interpreter','Latex')
+xlabel('Integrated Helmholtz Energy','Interpreter','Latex')
 ylabel('pdf','Interpreter','Latex')
 title('Kernel Density Estimates of Helmholtz Energy','Interpreter','Latex')
 legend('Unfixed $\alpha_{111}$','Fixed $\alpha_{111}$','Interpreter','Latex')
