@@ -128,7 +128,6 @@ eig2=eig(fisher2);
 rodPoints=10:4:70;
 rodParams=[-18.4, .00191, 2.37];
 %Set figure settings
-hold on
 for i=1:2
     if i==1
         figure('Renderer', 'painters', 'Position', [50 100 1400 550])
@@ -136,15 +135,18 @@ for i=1:2
         jacFinite=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'finite');
         jacComplex=getJacobian(@(params)UninsulatedRodEquil(rodPoints,params),rodParams,'complex');
         jacAnalytic=RodSensitivities(rodParams,rodPoints');
+        jacFinite=jacFinite.*abs(rodParams);
+        jacComplex=jacComplex.*abs(rodParams);
+        jacAnalytic=jacAnalytic.*abs(rodParams);
         for j=1:3
             subplot(1,3,j)
             if j==1
                 for iParam=1:size(jacComplex,2)
-                    semilogy(rodPoints,abs(jacComplex(:,iParam)),LineSpec(iParam,'line'))
+                    plot(rodPoints,jacAnalytic(:,iParam),LineSpec(iParam,'line'))
                     hold on
                 end
                 title({'Complex Step' 'Sensitivities'},'Interpreter','Latex')
-                ylabel('$\left|\frac{\partial T}{\partial \theta_i}\right|$','Interpreter','Latex')
+                ylabel('$^{\frac{\partial T}{\partial \theta_i}}/_{|\theta_i|}$','Interpreter','Latex')
             elseif j==3
                 for iParam=1:size(jacFinite,2)
                     semilogy(rodPoints,abs(jacFinite(:,iParam)-jacAnalytic(:,iParam)),LineSpec(iParam,'line'))
