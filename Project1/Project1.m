@@ -6,34 +6,34 @@ set(0,'defaultLineLineWidth',4,'defaultAxesFontSize',20);
 close all
 k1=20.5; c1=1.5;
 param1=[k1 c1];
-h1=1e-16; % complex step
+h=1e-6; % complex step
 time=0:.01:6;
 
 % Complex approx
-kcomplex=complex(k1,h1);
+kcomplex=complex(k1,h);
 paramsk=[kcomplex c1];
 [t,ykcomplex]=ode15s(@(t,y) spring(t,y,paramsk), time, [2 ;-c1]); 
-spring_k = imag(ykcomplex(:,1))/h1;
+spring_k = imag(ykcomplex(:,1))/h;
 
-ccomplex=complex(c1,h1);
+ccomplex=complex(c1,h);
 paramsc=[k1 ccomplex];
 [t,yccomplex]=ode15s(@(t,y) spring(t,y,paramsc), time, [2 ;-ccomplex]); 
-spring_c = imag(yccomplex(:,1))/h1;
+spring_c = imag(yccomplex(:,1))/h;
 
 % Finite Differences 
 [t,yog]=ode15s(@(t,y) spring(t,y,param1), time, [2 ;-c1]); % original model for k
 [t,yog2]=ode15s(@(t,y) spring(t,y,param1), time, [2 ;-1]); 
-h2=1e-6;
+
 
 % Finite k
-parsfink=[k1+h2 c1];
+parsfink=[k1+h c1];
 [t,yk]=ode15s(@(t,y) spring(t,y,parsfink), time, [2 ;-c1]);
-finitek=(yk(:,1)-yog(:,1))/h2;
+finitek=(yk(:,1)-yog(:,1))/h;
 
 % Finite c
-parsfinc=[k1 c1+h2];
-[t,yc]=ode15s(@(t,y) spring(t,y,parsfinc), time, [2 ;-1-h2]);
-finitec=(yc(:,1)-yog2(:,1))/h2;
+parsfinc=[k1 c1+h];
+[t,yc]=ode15s(@(t,y) spring(t,y,parsfinc), time, [2 ;-1-h]);
+finitec=(yc(:,1)-yog2(:,1))/h;
 
 % Analytical solutions (given)
 f0 = sqrt(4*k1 - c1^2);
@@ -74,6 +74,14 @@ title('Sensitivites of $c$ vs. Time','Interpreter','Latex')
 xlabel('$Time$','Interpreter','Latex')
 ylabel('Sensitivity, $\frac{\delta c}{\delta t}$', 'Interpreter','Latex')
 axis([0 6 -0.5 0.5])
+
+max(abs(finitec-cana'))
+max(abs(spring_c-cana'))
+max(abs(finitek-kana'))
+max(abs(spring_k-kana'))
+
+
+
 
 %Save Figure
 saveas(gcf,'Figures/SpringSensitivities.png')
