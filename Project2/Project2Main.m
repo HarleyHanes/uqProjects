@@ -38,12 +38,20 @@ saveas(gcf,'Figures/DataNominal.png')
 design1=interval2.^2'; design2=interval2.^4'; design3=interval2.^6';
 design=[design1 design2 design3];
 
+% Other design matrix using finite differences, for verification
+% h=1e-6;
+% psi1=(psi([alpha1+h,alpha11,alpha111],interval2)-psi(alpha0,interval2))/h;
+% psi11=(psi([alpha1,alpha11+h,alpha111],interval2)-psi(alpha0,interval2))/h;
+% psi111=(psi([alpha1,alpha11,alpha111+h],interval2)-psi(alpha0,interval2))/h;
+% psidesign=[psi1; psi11; psi111]';
+% design=psidesign;
+
 % Solving for theta
 thetaOLS=inv(design'*design)*design'*simulation';
 psitheta=@(P) thetaOLS(1)*P.^2+thetaOLS(2)*P.^4+thetaOLS(3)*P.^6;
 varianceOLS=(1/(n-3))*(simulation'-design*thetaOLS)'*(simulation'-design*thetaOLS);
 
-% Formulating CI, not necessary just interesting
+% Formulating CI, not necessary but interesting
 xtxinv=inv(design'*design);
 confidence2=zeros(3,2);
 
@@ -53,7 +61,7 @@ for i=1:3
     confidence2(i,:)=[t1-t2,t1+t2];
 end
 
-psilower=@(P) confidence2(1,1)*P.^2+confidence2(2,1)*P.^4+confidence2(3,1)*P.^6+epsilon; 
+psilower=@(P) confidence2(1,1)*P.^2+confidence2(2,1)*P.^4+confidence2(3,1)*P.^6+epsilon;
 psiupper=@(P) confidence2(1,2)*P.^2+confidence2(2,2)*P.^4+confidence2(3,2)*P.^6+epsilon;
 
 % Plotting
