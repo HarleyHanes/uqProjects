@@ -23,7 +23,8 @@ simulation=psi([alpha1 alpha11 alpha111],interval2)+randn(1,n)*sigma; % row vect
 Rhat=simulation-psi(ALPHA,interval2);
 varhat=(1/(n-3))*(Rhat)*(Rhat)';
 
-figure(1)
+
+figure('Renderer', 'painters', 'Position', [100 100 800 600])
 hold on
 scatter(interval2,simulation,15)
 plot(interval2,psi(alpha0,interval2))
@@ -65,7 +66,7 @@ psilower=@(P) confidence2(1,1)*P.^2+confidence2(2,1)*P.^4+confidence2(3,1)*P.^6+
 psiupper=@(P) confidence2(1,2)*P.^2+confidence2(2,2)*P.^4+confidence2(3,2)*P.^6+epsilon;
 
 % Plotting
-figure(2)
+figure('Renderer', 'painters', 'Position', [100 100 1050 550])
 subplot(1,2,1)
 hold on
 scatter(interval2,simulation)
@@ -81,13 +82,74 @@ scatter(interval2,simulation-psitheta(interval2),'filled')
 plot(interval2, ones(1,n)*-2*sqrt(varianceOLS),'r')
 plot(interval2, ones(1,n)*2*sqrt(varianceOLS),'r')
 axis([0 .8 -inf inf])
-legend({'Residuals','2$\hat{\sigma}$'},'Interpreter','Latex')
+legend({'Residuals','2$\sigma$'},'Interpreter','Latex')
 hold off
 saveas(gcf,'Figures/FittedandResiduals.png')
 
 %% Problem 3
+
+modelType='Generic SIR';
 %Load SIR data
     D=load('SIR.txt');
     data.x=D(:,1);
     data.y=D(:,2);
     clear('D')
+%Set SIR settings
+paramsInit = [0.02; 0.15; 0.6];
+
+%Get Optimal Paramestimates
+[paramsOptimal,residualsOptimal,varEst,covEst] = LSQnonlin(...
+    @(data,params)P3SIRoutput(data,params,'infected'),data,paramsInit);
+
+%Plot Model Outputs over time
+figure('Renderer', 'painters', 'Position', [100 100 1050 550])
+subplot(1,2,1)
+yOptimal=P3SIRoutput(data.x,paramsOptimal,'all');
+plot(data.x,data.y,LineSpec(3,'marker'))
+hold on
+for i=1:3
+    plot(data.x,yOptimal(:,i),LineSpec(i,'line'))
+end
+legend('data', 'Susceptible','Infected','Recovered','Interpreter','Latex')
+xlabel('Time','Interpreter','Latex')
+ylabel('Number of Individuals','Interpreter','Latex')
+title(sprintf('SIR Model fit $(\\gamma=%.2g, \\delta=%.2g, r=%.2g)$',...
+    paramsOptimal),'Interpreter','Latex')
+subplot(1,2,2)
+    hold on
+    plot(data.x,residualsOptimal,LineSpec(1,'marker'))
+    plot(data.x,ones(length(data.x),1)*2*sqrt(varEst),LineSpec(2,'line'))
+    plot(data.x,-ones(length(data.x),1)*2*sqrt(varEst),LineSpec(2,'line'))
+    legend('Residuals','$2\sigma$','Interpreter','Latex')
+    axis([data.x(1) data.x(end) -max(abs(residualsOptimal)) max(abs(residualsOptimal))])
+
+
+
+saveas(gcf,'Figures/SIRplot')
+
+
+%Plot distributions and residuals
+figure('Renderer', 'painters', 'Position', [100 100 1050 550])
+%Get parameter distributions
+paramSigma=sqrt(diag(covEst));
+paramRanges=paramsOptimal+3*[-paramSigma paramSigma];
+distPoints=100;
+distRanges=NaN(3,100);
+paramsPDF=NaN(3,100);
+for i=1:3
+    subplot(1,3,i)
+    hold on
+    distRanges(i,:)=linspace(paramRanges(i,1),paramRanges(i,2),distPoints);
+    paramsPDF(i,:)=normpdf(distRanges(i,:),paramsOptimal(i),paramSigma(i));
+    plot(distRanges(i,:),paramsPDF(i,:),LineSpec(i,'line'))
+    if i==1
+        ylabel('pdf')
+        xlabel('$\gamma$','Interpreter','Latex')
+    elseif i==2
+        title(sprintf('pdf''s of parameter for %s model',modelType))
+        xlabel('$\delta$','Interpreter','Latex')
+    else
+        xlabel('r','Interpreter','Latex')
+    end  
+end
+

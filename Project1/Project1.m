@@ -291,17 +291,6 @@ end
 
 %% Function for Prob 2
 
-function dy = SIR_rhs(t,y,params)
-N = 1000;
-gamma = params(1);
-k = params(2);
-delta = params(3);
-r = params(4);
-dy = [delta*N - delta*y(1) - gamma*k*y(2)*y(1); %S
-gamma*k*y(2)*y(1) - (r + delta)*y(2); %I
-r*y(2) - delta*y(3)];%R
-end
-
 %% Functions for Prob 3
 
 %% Functions for Prob 4
