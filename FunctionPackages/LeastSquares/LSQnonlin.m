@@ -1,4 +1,4 @@
-function [paramsOptimal,residualsOptimal,varEst,covEst] = LSQnonlin(evalFcn,data,paramInit)
+function [paramsOptimal,residualsOptimal,varEst,covEst] = LSQnonlin(evalFcn,data,problem)
 %LSQnonlin Calculated optimal parameter values using nonlinear linear least squares
 %Inputs
     %evalFcn(data.x,params):function oupting nx1 response vector y from nx1
@@ -14,9 +14,9 @@ function [paramsOptimal,residualsOptimal,varEst,covEst] = LSQnonlin(evalFcn,data
     %Check that data.x and data.y are column vectors of same length
     data=CheckDataSizes(data);
     %Make Cost function
-    costFcn=@(params)sum(sum((evalFcn(data.x,params)-data.y).^2));
+    problem.objective=@(params)sum(sum((evalFcn(data.x,params)-data.y).^2));
     %Find Params with fminsearc
-    paramsOptimal=fminsearch(costFcn,paramInit);
+    paramsOptimal=fmincon(problem);
     %Get Residuals
     residualsOptimal=data.y-evalFcn(data.x,paramsOptimal);
     %Get variance estimate

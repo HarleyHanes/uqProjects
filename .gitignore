@@ -6,3 +6,5 @@ getJacobian.asv
 kde/license.txt
 
 *.png
+
+*.fig
