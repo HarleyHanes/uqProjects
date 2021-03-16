@@ -8,3 +8,9 @@ kde/license.txt
 *.png
 
 *.fig
+
+*.f
+
+*.F90
+
+*.c

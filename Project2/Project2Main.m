@@ -92,7 +92,7 @@ saveas(gcf,'Figures/FittedandResiduals.png')
 
 fid=fopen('TexOutputs.txt','wt');
 %Load SIR data
-for imodelType={'Generic SIR', 'Influenza'}
+for imodelType={'Generic SIR'}
     modelType=imodelType{1};
     if strcmpi(modelType,'Generic SIR')
         D=load('SIR.txt');
