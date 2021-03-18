@@ -1,10 +1,12 @@
 %% Project 3
 % Leah Rolf, Harley Hanes, James Savino
 clc; clear all; close all
+set(0,'defaultLineLineWidth',4,'defaultAxesFontSize',20);
 
 %% Problem 1
 
 %% Problem 2
+    problem='4 parameter';
     %Initialize problem
         %Load SIR data
         D=load('SIR.txt');
@@ -13,50 +15,146 @@ clc; clear all; close all
         clear('D')
         %Set initial conditions for SIR
         inits=[1000-127.1233; 127.1233; 0];
-        %State parameter names and ranges
-        params={
-            {'gamma',0.02,0,1}
-            {'delta', .15,0,1}
-            {'r', .6,0,1}
-        };
-        %Define error func
-        model.ssfun=@(params,data)sirSS(data,params,inits,'no k');
-        %Define varainces- taken from project 2 problem 3
+        
+        %Seperate part A and B
+        if strcmpi(problem,'3 parameter')
+            %State parameter names and ranges
+            params={
+                    {'gamma',0.00921,0,1}
+                    {'delta', .195,0,1}
+                    {'r', .787,0,1}
+                };
+            %Define error function
+            model.ssfun=@(params,data)sirSS(data,params,inits,'no k');
+            %Define parameter variances
+            options.qcov=[3.996604557707984e-08,7.294589132883216e-08,2.080488101816833e-07;7.294589132883216e-08,9.379222001817734e-05,9.841326827550314e-05;2.080488101816833e-07,9.841326827550314e-05,1.720799701083470e-04];
+        else
+            %State parameter names and ranges
+            params={
+                    {'gamma',0.1294,0,1}
+                    {'k',.1163,0,1}
+                    {'delta', .1948,0,1}
+                    {'r', .7834,0,1}
+                };
+            %Define Error Function
+            model.ssfun=@(params,data)sirSS(data,params,inits,'with k');
+        end
+        %Set observation variance
         model.sigma2=3.890110168320449e+02;
-        options.qcov=[3.996604557707984e-08,7.294589132883216e-08,2.080488101816833e-07;7.294589132883216e-08,9.379222001817734e-05,9.841326827550314e-05;2.080488101816833e-07,9.841326827550314e-05,1.720799701083470e-04];
         %Set number of simulations
         options.nsimu=10000;
         options.updatesigma=1;
         
     %Run DRAM
         [results,chain,s2chain]=mcmcrun(model,data,params,options);
-        
-    %Plot Results
-        figure(1); clf
-        mcmcplot(chain,[],results,'chainpanel');
-
-        figure(2); clf
-        mcmcplot(chain,[],results,'pairs');
-
+    %Print Chain results
         cov(chain)
         chainstats(chain,results)
+        if strcmpi(problem,'3 parameter')
+            fprintf('\nsigma^2 mean=%.4e\n',mean(s2chain))
+            fprintf('V_{DRAM}-V_{OLS}')
+            results.qcov-options.qcov
+            fprintf('(V_{DRAM}-V_{OLS})./V_{DRAM}')
+            (results.qcov-options.qcov)./results.qcov
+        end
+    %Get distribution
+    if strcmpi(problem,'3 parameter')
+      [bandwidth_g,density_g,gMesh,cdf_q]=kde(chain(:,1));
+      [bandwidth_d,density_d,dMesh,cdf_d]=kde(chain(:,2));
+      [bandwidth_r,density_r,rMesh,cdf_r]=kde(chain(:,3));
+    else 
+      [bandwidth_g,density_g,gMesh,cdf_q]=kde(chain(:,1));
+      [bandwidth_k,density_k,kMesh,cdf_k]=kde(chain(:,2));
+      [bandwidth_d,density_d,dMesh,cdf_d]=kde(chain(:,3));
+      [bandwidth_r,density_r,rMesh,cdf_r]=kde(chain(:,4));
+    end
         
+    %Plot Results
+        
+%         figure; clf
+%         mcmcplot(chain,[],results,'chainpanel');
+        %Pairwise plots
+        figure('Renderer', 'painters', 'Position', [100 100 650 550]); clf
+        mcmcplot(chain,[],results,'pairs');
+        saveas(gcf,sprintf('Figures/%s_pairwise',problem))
+
+        %Parameter Chains
+        if strcmpi(problem,'3 parameter')
         for i=1:3
-            figure(2+i); clf
-            plot(chain(:,i),'-')
-            set(gca,'Fontsize',[22]);
+            figure('Renderer', 'painters', 'Position', [100 100 650 450]); clf
+            plot(chain(:,i),'-','LineWidth',1)
+            %set(gca,'Fontsize',[22]);
             %axis([0 options.n -19.3 -17.5])
             xlabel('Chain Iteration')
             switch i
                 case 1
-                    ylabel('Parameter gamma')
+                    ylabel(sprintf('$\\gamma\\ (\\bar{\\gamma}=%.4g)$',mean(chain(:,i))),'Interpreter','Latex')
+                    saveas(gcf,sprintf('Figures/%s_gChain',problem))
                 case 2
-                    ylabel('Parameter delta')
+                    ylabel(sprintf('$\\delta\\ (\\bar{\\delta}=%.4g)$',mean(chain(:,i))),'Interpreter','Latex')
+                    saveas(gcf,sprintf('Figures/%s_dChain',problem))
                 case 3
-                    ylabel('Parameter r')
+                    ylabel(sprintf('$r\\ (\\bar{r}=%.4g)$',mean(chain(:,i))),'Interpreter','Latex')
+                    saveas(gcf,sprintf('Figures/%s_rChain',problem))
             end
         end
+        else
+        for i=1:4
+            figure('Renderer', 'painters', 'Position', [100 100 650 450]); clf
+            plot(chain(:,i),'-','LineWidth',1)
+            %set(gca,'Fontsize',[22]);
+            %axis([0 options.n -19.3 -17.5])
+            xlabel('Chain Iteration')
+            switch i
+                case 1
+                    ylabel(sprintf('$\\gamma\\ (\\bar{\\gamma}=%.4g)$',mean(chain(:,i))),'Interpreter','Latex')
+                    saveas(gcf,sprintf('Figures/%s_gChain',problem))
+                case 2
+                    ylabel(sprintf('$k\\ (\\bar{k}=%.4g)$',mean(chain(:,i))),'Interpreter','Latex')
+                    saveas(gcf,sprintf('Figures/%s_kChain',problem))
+                case 3
+                    ylabel(sprintf('$\\delta\\ (\\bar{\\delta}=%.4g)$',mean(chain(:,i))),'Interpreter','Latex')
+                    saveas(gcf,sprintf('Figures/%s_dChain',problem))
+                case 4
+                    ylabel(sprintf('$r\\ (\\bar{r}=%.4g)$',mean(chain(:,i))),'Interpreter','Latex')
+                    saveas(gcf,sprintf('Figures/%s_rChain',problem))
+            end
+        end
+        end
+        %sigma squared chain
+        figure('Renderer', 'painters', 'Position', [100 100 700 500])
+        plot(s2chain,'-','LineWidth',1)
+        xlabel('Chain Iteration')
+        ylabel(sprintf('$\\sigma^2(\\bar{\\sigma^2}=%.4g)$',mean(s2chain)),'Interpreter','Latex')
+        fprintf('\nsigma mean=%.4e\n',mean(s2chain))
+        saveas(gcf,sprintf('Figures/%s_s2chain',problem))
         
+        %Parameter distributions
+        %gamma
+        figure('Renderer', 'painters', 'Position', [100 100 650 450])
+        plot(gMesh,density_g)
+        xlabel('$\gamma$','Interpreter','Latex')
+        saveas(gcf,sprintf('Figures/%s_Marginal_g',problem))
+        
+        %delta
+        figure('Renderer', 'painters', 'Position', [100 100 650 450])
+        plot(dMesh,density_d)
+        xlabel('$\delta$','Interpreter','Latex')
+        saveas(gcf,sprintf('Figures/%s_Marginal_d',problem))
+        
+        %k
+        figure('Renderer', 'painters', 'Position', [100 100 650 450])
+        plot(rMesh,density_r)
+        xlabel('$k$','Interpreter','Latex')
+        saveas(gcf,sprintf('Figures/%s_Marginal_k',problem))
+        
+        %h
+        if ~strcmpi('3 parameter',problem)
+        figure('Renderer', 'painters', 'Position', [100 100 650 450])
+        plot(kMesh,density_k)
+        xlabel('$h$','Interpreter','Latex')
+        saveas(gcf,sprintf('Figures/%s_Marginal_h',problem))
+        end
 
 %% Problem 3
 
@@ -226,9 +324,9 @@ ylabel('$\alpha_{111}$','Interpreter','Latex')
 
 function ss=sirSS(data,params,inits,useK)
 if strcmpi(useK,'no k')
-    paramsWithK=[params(1) 1 params(2) params(3)];
+    params=[params(1) 1 params(2) params(3)];
 end
 ode_options = odeset('RelTol',1e-6);
-[~,Y]=ode45(@SIR_rhs,data.xdata,inits,ode_options,paramsWithK);
+[~,Y]=ode45(@SIR_rhs,data.xdata,inits,ode_options,params);
 ss=sum((data.ydata-Y(:,2)).^2);
 end
