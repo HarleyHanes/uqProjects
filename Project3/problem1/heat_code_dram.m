@@ -119,12 +119,12 @@
 
   figure(1); clf
   mcmcplot(chain,[],results,'chainpanel');
-  saveas(gcf,'Figures/chainpaneldram.png')
+  saveas(gcf,'Figures/dram/chainpaneldram.png')
 
 
   figure(2); clf
   mcmcplot(chain,[],results,'pairs');
-  saveas(gcf,'Figures/pairsdram.png')
+  saveas(gcf,'Figures/dram/pairsdram.png')
 
 
   cov(chain)
@@ -136,7 +136,7 @@
   axis([0 N -10 -9.2])
   xlabel('Chain Iteration')
   ylabel('Parameter Q')
-  saveas(gcf,'Figures/chainitQdram.png')
+  saveas(gcf,'Figures/dram/chainitQdram.png')
   
 
   figure(4); clf
@@ -145,21 +145,21 @@
   axis([0 N 1.28e-3 1.38e-3])
   xlabel('Chain Iteration')
   ylabel('Parameter h')
-  saveas(gcf,'Figures/chainitHdram.png')
+  saveas(gcf,'Figures/dram/chainitHdram.png')
 
   figure(5); clf
   plot(Qmesh,density_Q,'k-','linewidth',3)
   axis([-10 -9.2 0 6.5])
   set(gca,'Fontsize',[22]);
   xlabel('Parameter Q')
-  saveas(gcf,'Figures/marginaldensityqdram.png')
+  saveas(gcf,'Figures/dram/marginaldensityqdram.png')
 
   figure(6); clf
   plot(hmesh,density_h,'k-','linewidth',3)
   axis([1.28e-3 1.38e-3 0 5e4])
   set(gca,'Fontsize',[22]);
   xlabel('Parameter h')
-  saveas(gcf,'Figures/marginaldensityhdram.png')
+  saveas(gcf,'Figures/dram/marginaldensityhdram.png')
 
   figure(7); clf
   scatter(Qvals,hvals)
@@ -168,7 +168,7 @@
   set(gca,'Fontsize',[23]);
   xlabel('Parameter Q')
   ylabel('Parameter h')
-  saveas(gcf,'Figures/jointsampledram.png')
+  saveas(gcf,'Figures/dram/jointsampledram.png')
 
 
 

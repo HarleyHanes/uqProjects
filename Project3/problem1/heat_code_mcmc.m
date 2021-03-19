@@ -143,7 +143,7 @@
   axis([0 N -10 -9.2])
   xlabel('Chain Iteration')
   ylabel('Parameter Q')
-  saveas(gcf,'Figures/qchainmcmc.png')
+  saveas(gcf,'Figures/mcmc/qchainmcmc.png')
 
 
   figure(2)
@@ -152,14 +152,14 @@
   axis([0 N 1.28e-3 1.38e-3])
   xlabel('Chain Iteration')
   ylabel('Parameter h')
-  saveas(gcf,'Figures/hchainmcmc.png')
+  saveas(gcf,'Figures/mcmc/hchainmcmc.png')
 
 
   figure(3)
   plot(Sigma2)
   set(gca,'Fontsize',[22]);
   title('Measurement Error Variance \sigma^2')
-  saveas(gcf,'Figures/meserrorvarmcmc.png')
+  saveas(gcf,'Figures/mcmc/meserrorvarmcmc.png')
 
 
   figure(4)
@@ -167,7 +167,7 @@
   axis([-10 -9.2 0 6.5])
   set(gca,'Fontsize',[22]);
   xlabel('Parameter Q')
-  saveas(gcf,'Figures/marginaldensityQmcmc.png')
+  saveas(gcf,'Figures/mcmc/marginaldensityQmcmc.png')
 
 
   figure(5)
@@ -175,7 +175,7 @@
   axis([1.28e-3 1.38e-3 0 5e4])
   set(gca,'Fontsize',[22]);
   xlabel('Parameter h')
-  saveas(gcf,'Figures/marginaldensityhmcmc.png')
+  saveas(gcf,'Figures/mcmc/marginaldensityhmcmc.png')
 
 
   figure(6)
@@ -185,6 +185,6 @@
   set(gca,'Fontsize',[22]);
   xlabel('Parameter Q')
   ylabel('Parameter h')
-  saveas(gcf,'Figures/jointsamplemcmc.png')
+  saveas(gcf,'Figures/mcmc/jointsamplemcmc.png')
 
 
