@@ -7,16 +7,14 @@ set(0,'defaultLineLineWidth',4,'defaultAxesFontSize',20);
 table=[58 59 60 61 62 63 64 65 66 67 68 69 70 71 72;115 117 120 123 126 129 132 135 139 142 146 150 154 159 164];
 n=length(table);
 covinit=[634.88 -235.04 21.66; -235.04 87.09 -8.03; 21.66 -8.03 0.74];
-var=0.15;
+var=0.15; doublesig=2*var;
+V_sig = var*eye(n,n);
 
 weight=@(theta,height) theta(1)+theta(2)*(height/12)+theta(3)*(height/12).^2;
 thetanom=[261.88;-88.18;11.96];
 height=linspace(58,72,n);
 epsilon=sqrt(var)*randn(1,n);
 simulation=weight(thetanom,height)+epsilon;
-doublesigma=2*var;
-
-doublesigvec=[weight(thetanom,height)+doublesigma; weight(thetanom,height)-doublesigma];
 
 % design matrix using Complex-Step
 h=1e-16;
@@ -30,6 +28,13 @@ theta1=imag(weight(theta1com,height))/h;
 theta2=imag(weight(theta2com,height))/h;
 
 design=[theta0;theta1;theta2]';
+
+% mean, covariance, and sd
+mean = design*thetanom;
+covY = design*covinit*design' + V_sig;
+sd_bd = 2*sqrt(diag(covY));
+
+doublesigvec=[weight(thetanom,height)+doublesig; weight(thetanom,height)-doublesig];
 
 % Prediction interval for known interval
 testxvalues=height(1:14)+.5;
@@ -70,7 +75,7 @@ saveas(gcf,'Figures/Knowninterval.png')
 
 % Unknown interval
 heightpred=50:80;
-undoublesig=[weight(thetanom,heightpred)+doublesigma;weight(thetanom,heightpred)-doublesigma];
+undoublesig=[weight(thetanom,heightpred)+doublesig;weight(thetanom,heightpred)-doublesig];
 
 % Prediction for unknown
 predictxvalues=[50:79]+.5; % exploring 50-80 inches
@@ -101,10 +106,10 @@ hold on
 plot(heightpred,weight(thetanom,heightpred),'k','LineWidth',1)
 plot(heightpred,undoublesig,'r','LineWidth',1)
 plot(predictxvalues,intervalpred,'b--','LineWidth',1)
-axis([74 76 175 185])
+axis([75 79 180 198])
 xlabel('Height');ylabel('Weight')
 legend({'Mean','+2$\sigma$','-2$\sigma$','Predict'},'Interpreter','Latex','Location','Northwest')
-title('Unknown values [74,76]')
+title('Unknown values [75,79]')
 hold off
 saveas(gcf,'Figures/Unknowninterval.png')
 
