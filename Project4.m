@@ -42,7 +42,7 @@ interval(:,i)=[yhatstar+predict;yhatstar-predict];
 end
 
 % Plots for known
-figure;
+figure('Renderer', 'painters', 'Position', [100 100 1050 500]);
 subplot(1,2,1)
 hold on
 plot(height,weight(thetanom,height),'k','LineWidth',1)
@@ -66,7 +66,7 @@ xlabel('Height');ylabel('Weight')
 legend({'Mean','Data','+2$\sigma$','-2$\sigma$','Predict'},'Interpreter','Latex','Location','Northwest')
 title('Known values [60,62]')
 hold off
-% saveas(gcf,'Figures/Knowninterval.png')
+saveas(gcf,'Figures/Knowninterval.png')
 
 % Unknown interval
 heightpred=50:80;
@@ -83,7 +83,7 @@ intervalpred(:,i)=[yhatstar+predict;yhatstar-predict];
 end
 
 % Plots for unknown
-figure;
+figure('Renderer', 'painters', 'Position', [100 100 1050 500]);
 subplot(1,2,1)
 hold on
 plot(heightpred,weight(thetanom,heightpred),'k','LineWidth',1)
@@ -106,7 +106,7 @@ xlabel('Height');ylabel('Weight')
 legend({'Mean','+2$\sigma$','-2$\sigma$','Predict'},'Interpreter','Latex','Location','Northwest')
 title('Unknown values [74,76]')
 hold off
-% saveas(gcf,'Figures/Unknowninterval.png')
+saveas(gcf,'Figures/Unknowninterval.png')
 
 %% Problem 2
 
