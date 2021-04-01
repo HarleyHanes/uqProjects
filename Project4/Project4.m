@@ -1,7 +1,8 @@
 %% Project 4 MA540
 % Leah Rolf, Harley Hanes, James Savino
 clear; clc; close all;
-set(0,'defaultLineLineWidth',4,'defaultAxesFontSize',16);
+set(0,'defaultLineLineWidth',2,'defaultAxesFontSize',16);
+set(groot, 'defaultAxesTickLabelInterpreter','latex'); set(groot, 'defaultLegendInterpreter','latex');
 
 %% Problem 1
 table=[58 59 60 61 62 63 64 65 66 67 68 69 70 71 72;115 117 120 123 126 129 132 135 139 142 146 150 154 159 164];
@@ -116,6 +117,7 @@ saveas(gcf,'Figures/Unknowninterval.png')
 %% Problem 2
 
 %% Problem 3/4
+clear
     %Initialize problem
         %Load SIR data
         D=load('SIR.txt');
@@ -127,9 +129,9 @@ saveas(gcf,'Figures/Unknowninterval.png')
         
         %State parameter names and ranges
         params={
-                {'gamma',0.00921,0,1}
-                {'delta', .195,0,1}
-                {'r', .787,0,1}
+                {'gamma',0.0091172 ,0,1}
+                {'delta', 0.1941,0,1}
+                {'r', 0.78621,0,1}
             };
         %Define error function
         model.ssfun=@(params,data)sirSS(data,params,inits,'no k');
@@ -160,17 +162,18 @@ saveas(gcf,'Figures/Unknowninterval.png')
     %Get Prediction Intervals
         predResults=mcmcpred(results,chain,s2chain,data.xdata,...
             @(data,params)SIReval(data,params,inits),nSample);
-        dramInt=[predResults.obslims{1}{1}(3,:)+.001;
-            predResults.predlims{1}{1}(3,:)+.001;
+        dramInt=[predResults.obslims{1}{1}(3,:);
+            predResults.predlims{1}{1}(3,:);
             predResults.predlims{1}{1}(2,:);
-            predResults.predlims{1}{1}(1,:)-.001;
-            predResults.obslims{1}{1}(1,:)]-.001;
+            predResults.predlims{1}{1}(1,:);
+            predResults.obslims{1}{1}(1,:)];
         plotIntervals(data.xdata,dramInt);
-        title('DRAM Intervals')
+        %title('DRAM Intervals')
         xlabel('Time')
         ylabel('Infected Individuals')
+saveas(gcf,'Figures/P4_DRAMInterval.png')
 %% Problem 4
-params=[0.0100  0.1953 0.7970];
+params=[.0091172  0.1941 0.78621];
 Sens=getJacobian(@(params)SIReval(data.xdata,params,inits),...
     params);
 sigma2=426.8;
@@ -183,9 +186,21 @@ predInfecInt=baseInfec+([2 -2].*sqrt(diag(predVar)));
 confInfecInt=baseInfec+([2 -2].*sqrt(diag(confVar)));
 plotMat=[confInfecInt(:,1) predInfecInt(:,1) baseInfec predInfecInt(:,2) confInfecInt(:,2)]';
 plotIntervals(data.xdata,plotMat)
-        title('Linearized Model Intervals')
+        %title('Linearized Model Intervals')
         xlabel('Time')
         ylabel('Infected Individuals')
+saveas(gcf,'Figures/P4_LinearizedInterval.png')
+        
+%% Comparing 3/4
+figure('Renderer', 'painters', 'Position', [100 100 600 500])
+        
+plot(data.xdata,dramInt(1,:)-plotMat(1,:),LineSpec(1,'marker'))
+hold on
+plot(data.xdata,dramInt(2,:)-plotMat(2,:),LineSpec(2,'marker'))
+	xlabel('Time')
+    ylabel('Linearized Interval Error')
+    legend('Confidence Interval','Prediction Interval')
+saveas(gcf,'Figures/P4_LinearizedIntervalError.png')
 
 %% Support Functions 
 
@@ -206,18 +221,17 @@ I=Y(:,2);
 end
 
 function plotIntervals(time,intervals)
-
-
-
-figure 
+figure('Renderer', 'painters', 'Position', [100 100 600 500])
 hold on
 %Plot Confidence Intervals
-x = [time(1) time' time(end) fliplr(time)'];
-inBetween = [intervals(5,1) intervals(1,:) intervals(5,end)  intervals(end,:)];
-fill(x, inBetween,'g','Linestyle','none')
-%Plot Prediction Interval
-inBetween = [intervals(4,1) intervals(2,:) intervals(4,end) intervals(4,:)];
-fill(x, inBetween,'r','Linestyle','none')
+fillyy(time',intervals(1,:)',intervals (5,:)','g')
+fillyy(time',intervals(2,:)',intervals (4,:)','r')
+% x = [time(1) time' time(end) fliplr(time)'];
+% inBetween = [intervals(5,1) intervals(1,:) intervals(5,end)  intervals(end,:)];
+% fill(x, inBetween,'g','Linestyle','none')
+% Plot Prediction Interval
+% inBetween = [intervals(4,1) intervals(2,:) intervals(4,end) intervals(4,:)];
+% fill(x, inBetween,'r','Linestyle','none')
 %Plot Estimate
 plot(time,intervals(3,:))
 legend('$95\%$ Confidence','$95\%$ Prediction','Model Result','Interpreter','Latex')
