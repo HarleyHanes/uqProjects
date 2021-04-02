@@ -1,23 +1,22 @@
 %% Project 4 MA540
 % Leah Rolf, Harley Hanes, James Savino
 clear; clc; close all;
-set(0,'defaultLineLineWidth',2,'defaultAxesFontSize',16);
-set(groot, 'defaultAxesTickLabelInterpreter','latex'); set(groot, 'defaultLegendInterpreter','latex');
+set(0,'defaultLineLineWidth',4,'defaultAxesFontSize',20);
 
 %% Problem 1
 table=[58 59 60 61 62 63 64 65 66 67 68 69 70 71 72;115 117 120 123 126 129 132 135 139 142 146 150 154 159 164];
 n=length(table);
-covinit=[634.88 -235.04 21.66; -235.04 87.09 -8.03; 21.66 -8.03 0.74];
-var=0.15; doublesig=2*var;
-V_sig = var*eye(n,n);
+V=[634.88 -235.04 21.66; -235.04 87.09 -8.03; 21.66 -8.03 0.74];
+var=0.15;
+V_sig = sqrt(var)*eye(n,n);
 
 weight=@(theta,height) theta(1)+theta(2)*(height/12)+theta(3)*(height/12).^2;
 thetanom=[261.88;-88.18;11.96];
 height=linspace(58,72,n);
-epsilon=sqrt(var)*randn(1,n);
+epsilon=var*randn(1,n);
 simulation=weight(thetanom,height)+epsilon;
 
-% design matrix using Complex-Step
+% design matrix using Complex-Step and analytical
 h=1e-16;
 
 theta0com=[complex(thetanom(1),h) thetanom(2) thetanom(3)];
@@ -28,64 +27,59 @@ theta0=imag(weight(theta0com,height))/h;
 theta1=imag(weight(theta1com,height))/h;
 theta2=imag(weight(theta2com,height))/h;
 
-design=[theta0;theta1;theta2]';
+% X=[theta0;theta1;theta2]';
+X=[ones(n,1) (height/12)' ((height/12).^2)'];
 
 % mean, covariance, and sd
-mean = design*thetanom;
-covY = design*covinit*design' + V_sig;
+mean = X*thetanom;
+R = weight(thetanom,height)' - X*thetanom;
+S2 = (1/(n-3))*(R'*R);
+S = sqrt(S2);
+V = S2*inv(X'*X);
+covY = X*V*X' + V_sig;
 sd_bd = 2*sqrt(diag(covY));
 
-doublesigvec=[weight(thetanom,height)+doublesig; weight(thetanom,height)-doublesig];
+doublesigvec=[mean+sd_bd mean-sd_bd];
 
 % Prediction interval for known interval
 testxvalues=height(1:14)+.5;
+testX=[ones(length(testxvalues),1) (testxvalues/12)' ((testxvalues/12).^2)'];
 interval=zeros(2,length(testxvalues));
+
 for i=1:length(testxvalues)
-heightextract=[1 (testxvalues(i)/12) (testxvalues(i)/12)^2]; 
-predict=tcdf(0.975,n-3)*sqrt(var)*sqrt(1+heightextract*inv(design'*design)*heightextract');
-yhatstar=heightextract*thetanom;
-interval(:,i)=[yhatstar+predict;yhatstar-predict];
+    heightextract=[1 (testxvalues(i)/12) (testxvalues(i)/12)^2]; 
+    predict=tinv(1-.05/2,length(testxvalues)-3)*sqrt(var)*sqrt(1+testX(i,:)*inv(X'*X)*testX(i,:)');
+    yhatstar=weight(thetanom,testxvalues(i));
+    interval(:,i)=[yhatstar+predict;yhatstar-predict];
 end
 
 % Plots for known
 figure('Renderer', 'painters', 'Position', [100 100 1050 500]);
-subplot(1,2,1)
 hold on
-plot(height,weight(thetanom,height),'k','LineWidth',1)
+plot(height,mean,'k','LineWidth',1)
 scatter(table(1,:),simulation,'filled')
-plot(height,doublesigvec,'r','LineWidth',1)
-plot(testxvalues,interval,'b--','LineWidth',1)
+plot(height,doublesigvec,'r','LineWidth',2)
+plot(testxvalues,interval,'b--','LineWidth',2)
 axis([min(height) max(height) -inf inf])
-xlabel('Height');ylabel('Weight')
+xlabel('Height (inches)');ylabel('Weight (lbs)')
 legend({'Mean','Data','+2$\sigma$','-2$\sigma$','Predict'},'Interpreter','Latex','Location','Northwest')
 title('Known values [58,72]')
 hold off
-
-subplot(1,2,2) % zooming in on same graph
-hold on
-plot(height,weight(thetanom,height),'k','LineWidth',1)
-scatter(table(1,:),simulation,'filled')
-plot(height,doublesigvec,'r','LineWidth',1)
-plot(testxvalues,interval,'b--','LineWidth',1)
-axis([height(4)-1 height(4)+1 simulation(4)-1 simulation(4)+1])
-xlabel('Height');ylabel('Weight')
-legend({'Mean','Data','+2$\sigma$','-2$\sigma$','Predict'},'Interpreter','Latex','Location','Northwest')
-title('Known values [60,62]')
-hold off
-saveas(gcf,'Figures/Knowninterval.png')
+% saveas(gcf,'Figures/Knowninterval.png')
 
 % Unknown interval
 heightpred=50:80;
-undoublesig=[weight(thetanom,heightpred)+doublesig;weight(thetanom,heightpred)-doublesig];
+undoublesig=[weight(thetanom,heightpred)+sd_bd(1); weight(thetanom,heightpred)-sd_bd(1)];
 
 % Prediction for unknown
 predictxvalues=[50:79]+.5; % exploring 50-80 inches
 intervalpred=zeros(2,length(predictxvalues));
+predX=[ones(length(predictxvalues),1) (predictxvalues/12)' ((predictxvalues/12).^2)'];
 for i=1:length(predictxvalues)
-heightextract=[1 (predictxvalues(i)/12) (predictxvalues(i)/12)^2]; 
-predict=tcdf(0.975,n-3)*sqrt(var)*sqrt(1+heightextract*inv(design'*design)*heightextract');
-yhatstar=heightextract*thetanom;
-intervalpred(:,i)=[yhatstar+predict;yhatstar-predict];
+    heightextract=[1 (predictxvalues(i)/12) (predictxvalues(i)/12)^2]; 
+    predict=tinv(1-.05/2,length(predictxvalues)-3)*sqrt(var)*sqrt(1+predX(i,:)*inv(X'*X)*predX(i,:)');
+    yhatstar=weight(thetanom,predictxvalues(i));
+    intervalpred(:,i)=[yhatstar+predict;yhatstar-predict];
 end
 
 % Plots for unknown
@@ -97,7 +91,7 @@ scatter(height,simulation,'filled')
 plot(heightpred,undoublesig,'r','LineWidth',1)
 plot(predictxvalues,intervalpred,'b--','LineWidth',1)
 axis([min(heightpred) max(heightpred) -inf inf])
-xlabel('Height');ylabel('Weight')
+xlabel('Height (inches)');ylabel('Weight (lbs)')
 legend({'Mean','Data','+2$\sigma$','-2$\sigma$','Predict'},'Interpreter','Latex','Location','Northwest')
 title('Unknown values [50,80]')
 hold off
@@ -108,11 +102,11 @@ plot(heightpred,weight(thetanom,heightpred),'k','LineWidth',1)
 plot(heightpred,undoublesig,'r','LineWidth',1)
 plot(predictxvalues,intervalpred,'b--','LineWidth',1)
 axis([75 79 180 198])
-xlabel('Height');ylabel('Weight')
-legend({'Mean','+2$\sigma$','-2$\sigma$','Predict'},'Interpreter','Latex','Location','Northwest')
+xlabel('Height (inches)');ylabel('Weight (lbs)')
+% legend({'Mean','+2$\sigma$','Predict','-2$\sigma$'},'Interpreter','Latex','Location','Northwest')
 title('Unknown values [75,79]')
 hold off
-saveas(gcf,'Figures/Unknowninterval.png')
+% saveas(gcf,'Figures/Unknowninterval.png')
 
 %% Problem 2
 
