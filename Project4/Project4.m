@@ -161,7 +161,7 @@ clear
             predResults.predlims{1}{1}(2,:);
             predResults.predlims{1}{1}(1,:);
             predResults.obslims{1}{1}(1,:)];
-        plotIntervals(data.xdata,dramInt);
+        plotIntervals(data,dramInt);
         %title('DRAM Intervals')
         xlabel('Time')
         ylabel('Infected Individuals')
@@ -179,7 +179,7 @@ baseInfec=SIReval(data.xdata,params,inits);
 predInfecInt=baseInfec+([2 -2].*sqrt(diag(predVar)));
 confInfecInt=baseInfec+([2 -2].*sqrt(diag(confVar)));
 plotMat=[confInfecInt(:,1) predInfecInt(:,1) baseInfec predInfecInt(:,2) confInfecInt(:,2)]';
-plotIntervals(data.xdata,plotMat)
+plotIntervals(data,plotMat)
         %title('Linearized Model Intervals')
         xlabel('Time')
         ylabel('Infected Individuals')
@@ -193,7 +193,7 @@ hold on
 plot(data.xdata,dramInt(2,:)-plotMat(2,:),LineSpec(2,'marker'))
 	xlabel('Time')
     ylabel('Linearized Interval Error')
-    legend('Confidence Interval','Prediction Interval')
+    legend('Prediction Interval','Credible Interval')
 saveas(gcf,'Figures/P4_LinearizedIntervalError.png')
 
 %% Support Functions 
@@ -214,7 +214,8 @@ params=[params(1) 1 params(2) params(3)];
 I=Y(:,2);
 end
 
-function plotIntervals(time,intervals)
+function plotIntervals(data,intervals)
+time=data.xdata;
 figure('Renderer', 'painters', 'Position', [100 100 600 500])
 hold on
 %Plot Confidence Intervals
@@ -227,8 +228,9 @@ fillyy(time',intervals(2,:)',intervals (4,:)','r')
 % inBetween = [intervals(4,1) intervals(2,:) intervals(4,end) intervals(4,:)];
 % fill(x, inBetween,'r','Linestyle','none')
 %Plot Estimate
-plot(time,intervals(3,:))
-legend('$95\%$ Confidence','$95\%$ Prediction','Model Result','Interpreter','Latex')
+plot(time,intervals(3,:),'LineWidth',1.8)
+plot(time,data.ydata,'ko','MarkerSize',1.5)
+legend('$95\%$ Prediction','$95\%$ Credible','Model Result','Data','Interpreter','Latex')
 ax=gca;
 ax.XLim = [min(time), max(time)];
 
