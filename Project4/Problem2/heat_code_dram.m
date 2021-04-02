@@ -171,16 +171,17 @@
 
   figure(5); clf
   plot(Qmesh,density_Q,'k-','linewidth',3)
-  axis([-19.5 -17.5 0 3])
   set(gca,'Fontsize',[22]);
   xlabel('Parameter Q')
+  saveas(gcf,'Figures/dram/marginaldensityqdram.png')
+
 
   figure(6); clf
   plot(hmesh,density_h,'k-','linewidth',3)
-  axis([1.8e-3 2e-3 0 3e4])
   set(gca,'Fontsize',[22]);
   xlabel('Parameter h')
-
+  saveas(gcf,'Figures/dram/marginaldensityhdram.png')
+  
   figure(7); clf
   scatter(Qvals,hvals)
   box on
@@ -189,17 +190,17 @@
   xlabel('Parameter Q')
   ylabel('Parameter h')
 
-
   figure(8); clf
   plot(smesh,density_s,'s-','linewidth',2)
   axis([0 0.5 0 10])
   set(gca,'Fontsize',[22]);
-  xlabel('errors')
+  xlabel('error')
+  saveas(gcf,'Figures/dram/errordensity.png')
 
-  figure(9)
+figure('Renderer', 'painters', 'Position', [100 100 1920 1080])
   mcmcpredplot(out);
   hold on
-  plot(xdataplotter,udatafull, '*r', 'linewidth',2);
+  plot(xdataplotter,udatafull, '*b', 'linewidth',1);
   plot([10 13],[lower_lim_beg lower_lim_beg],'r-','linewidth',2)
   plot([10 13],[upper_lim_beg upper_lim_beg],'r-','linewidth',2)
   plot([63 66],[lower_lim_end lower_lim_end],'r-','linewidth',2)
@@ -208,3 +209,4 @@
   set(gca,'Fontsize',[20]);
   xlabel('x')
   ylabel('u')
+  saveas(gcf,'Figures/dram/prediction.png')

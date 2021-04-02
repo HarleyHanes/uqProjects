@@ -125,17 +125,22 @@
   Q_val = chain(10:10:end,1);
   H_val = chain(10:10:end,2);
   error_end = sqrt(sigma2)*randn(size(Q_val));
-  u_end = tf(zeros(1,length(Q_val))
+  u_end = zeros(1,length(Q_val));
+  u_beg = zeros(1,length(Q_val));
   for i = 1:length(Q_val)
-      u_end(i) = heatmodel(10
+      u_end(i) = heatmodel(66, [Q_val(i) H_val(i)]) + error_end(i);
+      u_beg(i) = heatmodel(10, [Q_val(i) H_val(i)]) + error_end(i);
+  end
 
-  u_end = heatmodel(10,[Q_val H_val]) + error_end;
+  %u_end = heatmodel(10,[Q_val H_val]) + error_end;
   [bandwidth_u_end,density_u_end,u_end_mesh,cdf_u_end]=kde(u_end);
+  [bandwidth_u_beg,density_u_beg,u_beg_mesh,cdf_u_beg]=kde(u_beg);
   nbins = 20;
 
-  lower_lim = prctile(u_end,2.5);
-  upper_lim = prctile(u_end,97.5);
-
+  lower_lim_end = prctile(u_end,2.5);
+  upper_lim_end = prctile(u_end,97.5);
+  lower_lim_beg = prctile(u_beg,2.5);
+  upper_lim_beg = prctile(u_beg,97.5);
 
 %%
 % Plot the results.
@@ -169,13 +174,16 @@
   axis([-19.5 -17.5 0 3])
   set(gca,'Fontsize',[22]);
   xlabel('Parameter Q')
+  saveas(gcf,'Figures/dram/marginaldensityqdram.png')
+
 
   figure(6); clf
   plot(hmesh,density_h,'k-','linewidth',3)
   axis([1.8e-3 2e-3 0 3e4])
   set(gca,'Fontsize',[22]);
   xlabel('Parameter h')
-
+  saveas(gcf,'Figures/dram/marginaldensityhdram.png')
+  
   figure(7); clf
   scatter(Qvals,hvals)
   box on
@@ -184,20 +192,23 @@
   xlabel('Parameter Q')
   ylabel('Parameter h')
 
-
   figure(8); clf
   plot(smesh,density_s,'s-','linewidth',2)
   axis([0 0.5 0 10])
   set(gca,'Fontsize',[22]);
-  xlabel('errors')
+  xlabel('error')
+  saveas(gcf,'Figures/dram/errordensity.png')
 
   figure(9)
   mcmcpredplot(out);
   hold on
   plot(xdataplotter,udatafull, '*r', 'linewidth',2);
-  plot([10 13],[lower_lim lower_lim],'r-','linewidth',2)
-  plot([10 13],[upper_lim upper_lim],'r-','linewidth',2)
+  plot([10 13],[lower_lim_beg lower_lim_beg],'r-','linewidth',2)
+  plot([10 13],[upper_lim_beg upper_lim_beg],'r-','linewidth',2)
+  plot([63 66],[lower_lim_end lower_lim_end],'r-','linewidth',2)
+  plot([63 66],[upper_lim_end upper_lim_end],'r-','linewidth',2)
   hold off
   set(gca,'Fontsize',[20]);
   xlabel('x')
   ylabel('u')
+  saveas(gcf,'Figures/dram/prediction.png')
