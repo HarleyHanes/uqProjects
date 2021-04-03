@@ -145,34 +145,10 @@
 %%
 % Plot the results.
 %
-
-  figure(1); clf
-  mcmcplot(chain,[],results,'chainpanel');
-
-  figure(2); clf
-  mcmcplot(chain,[],results,'pairs');
-
-  cov(chain)
-  chainstats(chain,results)
-
-  figure(3); clf
-  plot(Qvals,'-')
-  set(gca,'Fontsize',[22]);
-  axis([0 N -19.3 -17.5])
-  xlabel('Chain Iteration')
-  ylabel('Parameter Q')
-
-  figure(4); clf
-  plot(hvals,'-')
-  set(gca,'Fontsize',[22]);
-  axis([0 N 1.84e-3 2e-3])
-  xlabel('Chain Iteration')
-  ylabel('Parameter h')
-
   figure(5); clf
   plot(Qmesh,density_Q,'k-','linewidth',3)
   set(gca,'Fontsize',[22]);
-  xlabel('Parameter Q')
+  xlabel('Parameter \Phi')
   saveas(gcf,'Figures/dram/marginaldensityqdram.png')
 
 
@@ -187,7 +163,7 @@
   box on
   axis([-19.2 -17.6 1.83e-3 2e-3])
   set(gca,'Fontsize',[23]);
-  xlabel('Parameter Q')
+  xlabel('Parameter \Phi')
   ylabel('Parameter h')
 
   figure(8); clf
@@ -200,13 +176,14 @@
 figure('Renderer', 'painters', 'Position', [100 100 1920 1080])
   mcmcpredplot(out);
   hold on
-  plot(xdataplotter,udatafull, '*b', 'linewidth',1);
+  plot(xdataplotter,udatafull, '*b', 'linewidth',5);
   plot([10 13],[lower_lim_beg lower_lim_beg],'r-','linewidth',2)
   plot([10 13],[upper_lim_beg upper_lim_beg],'r-','linewidth',2)
   plot([63 66],[lower_lim_end lower_lim_end],'r-','linewidth',2)
   plot([63 66],[upper_lim_end upper_lim_end],'r-','linewidth',2)
+  axis([10 66 24 96])
   hold off
   set(gca,'Fontsize',[20]);
-  xlabel('x')
-  ylabel('u')
-  saveas(gcf,'Figures/dram/prediction.png')
+  xlabel('Distance (cm)')
+  ylabel('Temperature (C)')
+  saveas(gcf,'Figures/dram/predictionhigh.png')
