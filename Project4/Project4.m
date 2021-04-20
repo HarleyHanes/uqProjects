@@ -62,7 +62,7 @@ plot(height,doublesigvec,'r','LineWidth',2)
 plot(testxvalues,interval,'b--','LineWidth',2)
 axis([min(height) max(height) -inf inf])
 xlabel('Height (inches)');ylabel('Weight (lbs)')
-legend({'Mean','Data','+2$\sigma$','-2$\sigma$','Predict'},'Interpreter','Latex','Location','Northwest')
+legend({'Mean','Data','+2$\sigma_Y$','-2$\sigma_Y$','Prediction Interval'},'Interpreter','Latex','Location','Northwest')
 title('Known values [58,72]')
 hold off
 % saveas(gcf,'Figures/Knowninterval.png')
@@ -92,7 +92,7 @@ plot(heightpred,undoublesig,'r','LineWidth',1)
 plot(predictxvalues,intervalpred,'b--','LineWidth',1)
 axis([min(heightpred) max(heightpred) -inf inf])
 xlabel('Height (inches)');ylabel('Weight (lbs)')
-legend({'Mean','Data','+2$\sigma$','-2$\sigma$','Predict'},'Interpreter','Latex','Location','Northwest')
+legend({'Mean','Data','+2$\sigma_Y$','-2$\sigma_Y$','Prediction Interval'},'Interpreter','Latex','Location','Northwest')
 title('Unknown values [50,80]')
 hold off
 
@@ -162,6 +162,7 @@ clear
             predResults.predlims{1}{1}(1,:);
             predResults.obslims{1}{1}(1,:)];
         plotIntervals(data,dramInt);
+legend('$95\%$ Prediction','$95\%$ Credible','Model Result','Data','Interpreter','Latex')
         %title('DRAM Intervals')
         xlabel('Time')
         ylabel('Infected Individuals')
@@ -180,6 +181,7 @@ predInfecInt=baseInfec+([2 -2].*sqrt(diag(predVar)));
 confInfecInt=baseInfec+([2 -2].*sqrt(diag(confVar)));
 plotMat=[confInfecInt(:,1) predInfecInt(:,1) baseInfec predInfecInt(:,2) confInfecInt(:,2)]';
 plotIntervals(data,plotMat)
+legend('$2\sigma$ Prediction','$2\sigma$ Credible','Model Result','Data','Interpreter','Latex')
         %title('Linearized Model Intervals')
         xlabel('Time')
         ylabel('Infected Individuals')
@@ -230,7 +232,6 @@ fillyy(time',intervals(2,:)',intervals (4,:)','r')
 %Plot Estimate
 plot(time,intervals(3,:),'LineWidth',1.8)
 plot(time,data.ydata,'ko','MarkerSize',1.5)
-legend('$95\%$ Prediction','$95\%$ Credible','Model Result','Data','Interpreter','Latex')
 ax=gca;
 ax.XLim = [min(time), max(time)];
 
