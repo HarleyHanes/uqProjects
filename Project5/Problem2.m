@@ -37,8 +37,8 @@
   q = (mu_k - sigma_k) + 2*sigma_k*rand(N_MC,1);
  
   d_t = 0.01;                   % d_omega = 0.001; Example16_10.m 
-  pt1 = -1;
-  pt2 = 1;
+  pt1 = 0;
+  pt2 = 3;
   time = [pt1:d_t:pt2];
   N_time = length(time);
 
@@ -127,6 +127,7 @@
   ylabel('Response Mean')
 %  legend('Discrete Projection','Monte Carlo','Deterministic Solution','Location','NorthEast')
   legend('Discrete Projection','Monte Carlo','Location','NorthEast')
+  saveas(gcf,'Figures/P2_Means')
 
   
   figure(2)
@@ -136,4 +137,28 @@
   xlabel('time')
   ylabel('Response Standard Deviation')  
   legend('Discrete Projection','Monte Carlo','Location','NorthEast')
+  saveas(gcf,'Figures/P2_STD')
+  
+  
+  figure(3)
+%  plot(omega,DP_mean,'b-',omega,MC_mean,'--r',omega,deterministic,'-.k','linewidth',3)
+  plot(time,DP_mean-MC_mean,'k-','linewidth',3)
+  %axis([pt1 pt2 -3 3])
+  set(gca,'Fontsize',[22]);
+  xlabel('time')
+  ylabel('Response Mean difference')
+%  legend('Discrete Projection','Monte Carlo','Deterministic Solution','Location','NorthEast')
+  %legend('Discrete Projection','Monte Carlo','Location','NorthEast')
+  saveas(gcf,'Figures/P2_meanDiff')
+   
+  figure(4)
+%  plot(omega,DP_mean,'b-',omega,MC_mean,'--r',omega,deterministic,'-.k','linewidth',3)
+  plot(time,DP_sd-MC_sigma,'k-','linewidth',3)
+  %axis([pt1 pt2 -3 3])
+  set(gca,'Fontsize',[22]);
+  xlabel('time')
+  ylabel('Response std difference')
+%  legend('Discrete Projection','Monte Carlo','Deterministic Solution','Location','NorthEast')
+  %legend('Discrete Projection','Monte Carlo','Location','NorthEast')
+  saveas(gcf,'Figures/P2_stdDiff')
 
