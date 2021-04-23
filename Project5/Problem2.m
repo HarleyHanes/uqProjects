@@ -38,7 +38,7 @@
  
   d_t = 0.01;                   % d_omega = 0.001; Example16_10.m 
   pt1 = 0;
-  pt2 = 3;
+  pt2 = 2.15;
   time = [pt1:d_t:pt2];
   N_time = length(time);
 
@@ -118,29 +118,27 @@
 %  Plot the response mean and standard deviation as a function of the drive frequency omega_F.
 %
 
-  figure(1)
+figure('Renderer', 'painters', 'Position', [100 100 1920 1080])
 %  plot(omega,DP_mean,'b-',omega,MC_mean,'--r',omega,deterministic,'-.k','linewidth',3)
-  plot(time,DP_mean,'k-',time,MC_mean,'--b','linewidth',3)
-  axis([pt1 pt2 -3 3])
+  plot(time,DP_mean,'k-',time,MC_mean,'--m','linewidth',3)
   set(gca,'Fontsize',[22]);
   xlabel('time')
   ylabel('Response Mean')
 %  legend('Discrete Projection','Monte Carlo','Deterministic Solution','Location','NorthEast')
-  legend('Discrete Projection','Monte Carlo','Location','NorthEast')
+  legend('Discrete Projection','Monte Carlo','Location','North')
   saveas(gcf,'Figures/P2_Means')
 
   
-  figure(2)
-  plot(time,DP_sd,'-k',time,MC_sigma,'--b','linewidth',3)
-  axis([pt1 pt2 0 0.001])
+figure('Renderer', 'painters', 'Position', [100 100 1920 1080])
+  plot(time,DP_sd,'-k',time,MC_sigma,'--m','linewidth',3)
   set(gca,'Fontsize',[22]);
   xlabel('time')
   ylabel('Response Standard Deviation')  
-  legend('Discrete Projection','Monte Carlo','Location','NorthEast')
+  legend('Discrete Projection','Monte Carlo','Location','NorthWest')
   saveas(gcf,'Figures/P2_STD')
   
   
-  figure(3)
+figure('Renderer', 'painters', 'Position', [100 100 1920 1080])
 %  plot(omega,DP_mean,'b-',omega,MC_mean,'--r',omega,deterministic,'-.k','linewidth',3)
   plot(time,DP_mean-MC_mean,'k-','linewidth',3)
   %axis([pt1 pt2 -3 3])
@@ -151,7 +149,7 @@
   %legend('Discrete Projection','Monte Carlo','Location','NorthEast')
   saveas(gcf,'Figures/P2_meanDiff')
    
-  figure(4)
+figure('Renderer', 'painters', 'Position', [100 100 1920 1080])
 %  plot(omega,DP_mean,'b-',omega,MC_mean,'--r',omega,deterministic,'-.k','linewidth',3)
   plot(time,DP_sd-MC_sigma,'k-','linewidth',3)
   %axis([pt1 pt2 -3 3])
